@@ -24,7 +24,7 @@ public class MysqlPersister {
 
     @Scheduled(fixedRateString = "${tracker.db.update-mysql-milliseconds-rate}")
     public void dbUpdate() {
-        log.info("update mysql db");
+        log.trace("update mysql db");
         onlineUserRepository.getOnlineUsers().forEach((userId, device) -> {
 
             DriverLocation driver = new DriverLocation(

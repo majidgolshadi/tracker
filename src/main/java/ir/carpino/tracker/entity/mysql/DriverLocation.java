@@ -1,6 +1,7 @@
 package ir.carpino.tracker.entity.mysql;
 
 import lombok.*;
+import org.hibernate.annotations.Type;
 import org.springframework.data.geo.Point;
 
 import javax.persistence.Column;
@@ -30,7 +31,8 @@ public class DriverLocation {
     @Column(length = 10, nullable = false)
     private String carCategory;
 
-    @Column(nullable = false)
+    @Type(type = "org.hibernate.                                                                                                       spatial.GeometryType")
+    @Column(columnDefinition = "geometry(Point,4326)", nullable = false)
     private Point location;
 
     @Column(nullable = false)
