@@ -1,6 +1,7 @@
 Tracker
 =======
 Driver position tracking to collect and store driver position in memory first and then persist them every `tracker.db.update-mysql-milliseconds-rate` second in mysql DB.
+
 ![tracker](./doc/pic/tracker_arch.png)
 
 Configuration
