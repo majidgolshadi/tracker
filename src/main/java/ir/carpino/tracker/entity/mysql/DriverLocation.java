@@ -3,25 +3,22 @@ package ir.carpino.tracker.entity.mysql;
 
 import lombok.*;
 
-import com.vividsolutions.jts.geom.Point;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import org.springframework.data.annotation.CreatedDate;
+
+import javax.persistence.*;
 import java.util.Date;
 
 @Getter
-@AllArgsConstructor
-@NoArgsConstructor
+@Builder
 @Entity
 @Table(name = "driver_location")
 public class DriverLocation {
     @Id
-    @Column(length = 24, nullable = false)
-    private String id;
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private int id;
 
-    @Column(length = 20, nullable = false)
-    private Date timestamp;
+    @Column(length = 32, nullable = false)
+    private String driverId;
 
     @Column(length = 20, nullable = false)
     private String status;
@@ -32,15 +29,12 @@ public class DriverLocation {
     @Column(length = 10, nullable = false)
     private String carCategory;
 
-    @Column(columnDefinition = "point", nullable = false)
-    private Point location;
+    @Column(nullable = false)
+    private double lat;
 
     @Column(nullable = false)
-    private float lat;
+    private double lon;
 
-    @Column(nullable = false)
-    private float lon;
-
-    @Column(length = 24)
-    private String rid;
+    @Column(nullable = false, updatable = false)
+    private Date timestamp;
 }

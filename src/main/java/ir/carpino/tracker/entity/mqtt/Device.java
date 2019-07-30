@@ -35,6 +35,10 @@ public class Device {
         lon = Float.valueOf(geoLoc[1]);
     }
 
+    public long getLongTimestamp() {
+        return Long.valueOf(timeStamp);
+    }
+
     public void setNamespaceMetaData(String namespaceMetaData) {
         String[] metadata = namespaceMetaData.split("/", 7);
         status = metadata[3];
