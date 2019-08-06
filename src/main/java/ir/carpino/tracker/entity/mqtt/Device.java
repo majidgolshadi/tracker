@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 
 @Getter
 @Setter
@@ -20,8 +22,11 @@ public class Device {
 
     private String payload;
 
-    private float lat;
-    private float lon;
+    private double lat;
+    private double lon;
+
+    private float f_lat;
+    private float f_lon;
 
     private String carCategory;
     private String status;
@@ -31,8 +36,12 @@ public class Device {
         this.location = location;
 
         String[] geoLoc = this.location.split(",");
-        lat = Float.valueOf(geoLoc[0]);
-        lon = Float.valueOf(geoLoc[1]);
+
+        lat = Double.valueOf(geoLoc[0]);
+        f_lat = Float.valueOf(geoLoc[0]);
+
+        lon = Double.valueOf(geoLoc[1]);
+        f_lon = Float.valueOf(geoLoc[1]);
     }
 
     public long getLongTimestamp() {

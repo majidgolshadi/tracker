@@ -1,9 +1,8 @@
-package ir.carpino.tracker.entity.mysql;
+package ir.carpino.tracker.entity.mysql.bi;
 
 
-import lombok.*;
-
-import org.springframework.data.annotation.CreatedDate;
+import lombok.Builder;
+import lombok.Getter;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -12,7 +11,7 @@ import java.util.Date;
 @Builder
 @Entity
 @Table(name = "driver_location")
-public class DriverLocation {
+public class BiDriverLocation {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private int id;

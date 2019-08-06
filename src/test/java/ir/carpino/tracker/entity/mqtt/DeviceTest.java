@@ -23,7 +23,7 @@ public class DeviceTest {
         assertEquals("available", device.getStatus());
         assertEquals("35.6440553,51.249601", device.getLocation());
         assertEquals("1563727427443", device.getTimeStamp());
-        assertEquals("35.644054", String.valueOf(device.getLat()));
-        assertEquals("51.2496", String.valueOf(device.getLon()));
+        assertEquals("35.6440553", String.valueOf(device.getLat()));
+        assertEquals("51.249601", String.valueOf(device.getLon()));
     }
 }
