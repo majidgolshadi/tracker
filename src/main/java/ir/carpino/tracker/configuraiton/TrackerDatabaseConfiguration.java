@@ -29,6 +29,7 @@ import javax.sql.DataSource;
 public class TrackerDatabaseConfiguration {
 
     @Bean
+    @Primary
     @ConfigurationProperties(prefix = "spring.mysql.datasource.tracker")
     public DataSource mysqlDataSource() {
         return DataSourceBuilder
