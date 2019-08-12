@@ -2,7 +2,9 @@ package ir.carpino.tracker.service;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import ir.carpino.tracker.entity.mysql.BiDriverLocation;
 import ir.carpino.tracker.entity.mysql.DriverLocation;
+//import ir.carpino.tracker.repository.bi.BiDriverLocationRepository;
 import ir.carpino.tracker.repository.bi.BiDriverLocationRepository;
 import ir.carpino.tracker.repository.tracker.DriverLocationRepository;
 import ir.carpino.tracker.repository.OnlineUserRepository;
@@ -29,23 +31,23 @@ public class MysqlPersister {
 
         factory = new GeometryFactory();
     }
-//
-//    @Scheduled(fixedRateString = "${tracker.db.update-bi-mysql-milliseconds-rate}")
-//    public void biDbUpdate() {
-//        log.trace("update bi mysql db");
-//        onlineUserRepository.getOnlineUsers().forEach((userId, device) -> {
-//
-//            biDriverLocationRepository.save(BiDriverLocation.builder()
-//                    .driverId(device.getId())
-//                    .carCategory(device.getCarCategory())
-//                    .lat(device.getLat())
-//                    .lon(device.getLon())
-//                    .status(device.getStatus())
-//                    .controller(device.getController())
-//                    .timestamp(new Date(device.getLongTimestamp()))
-//                    .build());
-//        });
-//    }
+
+    @Scheduled(fixedRateString = "${tracker.db.update-bi-mysql-milliseconds-rate}")
+    public void biDbUpdate() {
+        log.trace("update bi mysql db");
+        onlineUserRepository.getOnlineUsers().forEach((userId, device) -> {
+            BiDriverLocation driverLocation = new BiDriverLocation();
+            driverLocation.setDriverId(device.getId());
+            driverLocation.setCarCategory(device.getCarCategory());
+            driverLocation.setLat(device.getLat());
+            driverLocation.setLon(device.getLon());
+            driverLocation.setStatus(device.getStatus());
+            driverLocation.setController(device.getController());
+            driverLocation.setTimestamp(new Date(device.getLongTimestamp()));
+
+            biDriverLocationRepository.save(driverLocation);
+        });
+    }
 
 
     @Scheduled(fixedRateString = "${tracker.db.update-tracker-mysql-milliseconds-rate}")
@@ -53,20 +55,20 @@ public class MysqlPersister {
         log.trace("update tracker mysql db");
         onlineUserRepository.getOnlineUsers().forEach((userId, device) -> {
 
-            try {
+            DriverLocation driverlocation = new DriverLocation(
+                    device.getId(),
+                    new Date(Long.valueOf(device.getTimeStamp())),
+                    device.getStatus(),
+                    device.getController(),
+                    device.getCarCategory(),
+                    factory.createPoint(new Coordinate(device.getLat(), device.getLon())),
+                    device.getF_lat(),
+                    device.getF_lon(),
+                    device.getPayload()
+            );
 
-                driverLocationRepository.save(
-                        new DriverLocation(
-                                device.getId(),
-                                new Date(Long.valueOf(device.getTimeStamp())),
-                                device.getStatus(),
-                                device.getController(),
-                                device.getCarCategory(),
-                                factory.createPoint(new Coordinate(device.getLat(), device.getLon())),
-                                device.getF_lat(),
-                                device.getF_lon(),
-                                device.getPayload()
-                        ));
+            try {
+                driverLocationRepository.save(driverlocation);
             } catch (Exception ex) {
                 System.out.print("saalam");
             }
