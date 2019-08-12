@@ -1,7 +1,6 @@
 package ir.carpino.tracker.configuraiton;
 
-import ir.carpino.tracker.entity.mysql.bi.BiDriverLocation;
-import ir.carpino.tracker.entity.mysql.tracker.DriverLocation;
+import ir.carpino.tracker.entity.mysql.DriverLocation;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -22,33 +21,34 @@ import javax.sql.DataSource;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        entityManagerFactoryRef = "mysqlEntityManager",
-        transactionManagerRef = "mysqlTransactionManager",
-        basePackages = "ir.carpino.tracker.entity.mysql.tracker"
+        entityManagerFactoryRef = "trackerMysqlEntityManagerFactory",
+        transactionManagerRef = "trackerMysqlTransactionManager",
+        basePackages = "ir.carpino.tracker.repository.tracker"
 )
 public class TrackerDatabaseConfiguration {
 
     @Bean
+    @Primary
     @ConfigurationProperties(prefix = "spring.mysql.datasource.tracker")
-    public DataSource mysqlDataSource() {
+    public DataSource trackerMysqlDataSource() {
         return DataSourceBuilder
                 .create()
                 .build();
     }
 
     @Primary
-    @Bean(name = "mysqlEntityManager")
-    public LocalContainerEntityManagerFactoryBean mysqlEntityManagerFactory(EntityManagerFactoryBuilder builder) {
+    @Bean(name = "trackerMysqlEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean trackerMysqlEntityManagerFactory(EntityManagerFactoryBuilder builder) {
         return builder
-                .dataSource(mysqlDataSource())
+                .dataSource(trackerMysqlDataSource())
                 .packages(DriverLocation.class)
-                .persistenceUnit("mysqlPU")
+                .persistenceUnit("mysqlTracker")
                 .build();
     }
 
     @Primary
-    @Bean(name = "mysqlTransactionManager")
-    public PlatformTransactionManager mysqlTransactionManager(@Qualifier("mysqlEntityManager") EntityManagerFactory entityManagerFactory) {
+    @Bean(name = "trackerMysqlTransactionManager")
+    public PlatformTransactionManager trackerMysqlTransactionManager(@Qualifier("trackerMysqlEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);
     }
 }

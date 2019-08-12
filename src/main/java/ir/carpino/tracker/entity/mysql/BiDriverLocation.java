@@ -1,16 +1,19 @@
-package ir.carpino.tracker.entity.mysql.bi;
+package ir.carpino.tracker.entity.mysql;
 
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Date;
 
-@Getter
-@Builder
+@Getter @Setter
 @Entity
-@Table(name = "driver_location")
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "driver_geo_location")
 public class BiDriverLocation {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)

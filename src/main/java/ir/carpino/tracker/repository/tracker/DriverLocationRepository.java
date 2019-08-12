@@ -1,6 +1,6 @@
-package ir.carpino.tracker.repository;
+package ir.carpino.tracker.repository.tracker;
 
-import ir.carpino.tracker.entity.mysql.tracker.DriverLocation;
+import ir.carpino.tracker.entity.mysql.DriverLocation;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

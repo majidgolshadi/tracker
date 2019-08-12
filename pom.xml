@@ -12,11 +12,12 @@
 	<artifactId>tracker</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>tracker</name>
-	<description>Demo project for Spring Boot</description>
+	<description>persist driver location for bi and find location services</description>
 
 	<properties>
 		<java.version>1.8</java.version>
 		<jackson.version>2.9.9</jackson.version>
+		<jackson.databind.version>2.9.9.2</jackson.databind.version>
 		<caffein.version>2.6.2</caffein.version>
 		<mqtt-paho-client.verison>1.2.0</mqtt-paho-client.verison>
 	</properties>
@@ -44,7 +45,7 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>${jackson.version}</version>
+			<version>${jackson.databind.version}</version>
 		</dependency>
 
 		<dependency>

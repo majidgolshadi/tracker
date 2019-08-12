@@ -1,4 +1,4 @@
-package ir.carpino.tracker.entity.mysql.tracker;
+package ir.carpino.tracker.entity.mysql;
 
 
 import com.vividsolutions.jts.geom.Point;
@@ -8,8 +8,9 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Getter
-@Builder
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "driver_location")
 public class DriverLocation {
     @Id

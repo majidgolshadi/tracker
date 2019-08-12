@@ -1,6 +1,6 @@
 package ir.carpino.tracker.configuraiton;
 
-import ir.carpino.tracker.entity.mysql.bi.BiDriverLocation;
+import ir.carpino.tracker.entity.mysql.BiDriverLocation;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
@@ -21,9 +21,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        entityManagerFactoryRef = "biMysqlEntityManager",
+        entityManagerFactoryRef = "biMysqlEntityManagerFactory",
         transactionManagerRef = "biMysqlTransactionManager",
-        basePackages = "ir.carpino.tracker.entity.mysql.bi"
+        basePackages = "ir.carpino.tracker.repository.bi"
 )
 public class BiDatabaseConfiguration {
 
@@ -36,18 +36,18 @@ public class BiDatabaseConfiguration {
     }
 
     @Primary
-    @Bean(name = "biMysqlEntityManager")
-    public LocalContainerEntityManagerFactoryBean mysqlEntityManagerFactory(EntityManagerFactoryBuilder builder) {
+    @Bean(name = "biMysqlEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean biMysqlEntityManagerFactory(EntityManagerFactoryBuilder builder) {
         return builder
                 .dataSource(biMysqlDataSource())
                 .packages(BiDriverLocation.class)
-                .persistenceUnit("mysqlPU")
+                .persistenceUnit("mysqlBi")
                 .build();
     }
 
     @Primary
     @Bean(name = "biMysqlTransactionManager")
-    public PlatformTransactionManager mysqlTransactionManager(@Qualifier("biMysqlEntityManager") EntityManagerFactory entityManagerFactory) {
+    public PlatformTransactionManager biMysqlTransactionManager(@Qualifier("biMysqlEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);
     }
 }
