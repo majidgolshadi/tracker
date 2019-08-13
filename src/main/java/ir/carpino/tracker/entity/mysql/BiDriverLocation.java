@@ -16,7 +16,7 @@ import java.util.Date;
 @Table(name = "driver_geo_location")
 public class BiDriverLocation {
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private int id;
 
     @Column(length = 32, nullable = false)

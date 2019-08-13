@@ -17,6 +17,7 @@ spring.mysql.datasource.bi.jdbc-url=jdbc:mysql://<BI_DB_ADDRESS>:3306/<DB_NAME>
 
 spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.generate-ddl=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.spatial.dialect.mysql.MySQL56InnoDBSpatialDialect
 
 tracker.mqtt.url=tcp://<URL_ADDRESS>
