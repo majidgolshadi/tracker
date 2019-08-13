@@ -35,18 +35,23 @@ public class MysqlPersister {
     @Scheduled(fixedRateString = "${tracker.db.update-bi-mysql-milliseconds-rate}")
     public void biDbUpdate() {
         log.trace("update bi mysql db");
-        onlineUserRepository.getOnlineUsers().forEach((userId, device) -> {
-            BiDriverLocation driverLocation = new BiDriverLocation();
-            driverLocation.setDriverId(device.getId());
-            driverLocation.setCarCategory(device.getCarCategory());
-            driverLocation.setLat(device.getLat());
-            driverLocation.setLon(device.getLon());
-            driverLocation.setStatus(device.getStatus());
-            driverLocation.setController(device.getController());
-            driverLocation.setTimestamp(new Date(device.getLongTimestamp()));
 
-            biDriverLocationRepository.save(driverLocation);
-        });
+        try {
+            onlineUserRepository.getOnlineUsers().forEach((userId, device) -> {
+                BiDriverLocation driverLocation = new BiDriverLocation();
+                driverLocation.setDriverId(device.getId());
+                driverLocation.setCarCategory(device.getCarCategory());
+                driverLocation.setLat(device.getLat());
+                driverLocation.setLon(device.getLon());
+                driverLocation.setStatus(device.getStatus());
+                driverLocation.setController(device.getController());
+                driverLocation.setTimestamp(new Date(device.getLongTimestamp()));
+
+                biDriverLocationRepository.save(driverLocation);
+            });
+        } catch (Exception ex) {
+            log.error("persist in bi db error {}", ex.getCause());
+        }
     }
 
 
@@ -70,7 +75,7 @@ public class MysqlPersister {
             try {
                 driverLocationRepository.save(driverlocation);
             } catch (Exception ex) {
-                System.out.print("saalam");
+                log.error("persist in tracker db error {}", ex.getCause());
             }
         });
     }
