@@ -23,6 +23,13 @@
 	</properties>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<!-- MQTT -->
 		<dependency>
 			<groupId>org.eclipse.paho</groupId>
 			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
@@ -33,6 +40,13 @@
 			<groupId>com.github.ben-manes.caffeine</groupId>
 			<artifactId>caffeine</artifactId>
 			<version>${caffein.version}</version>
+		</dependency>
+
+		<!-- Geo -->
+		<dependency>
+			<groupId>org.locationtech.spatial4j</groupId>
+			<artifactId>spatial4j</artifactId>
+			<version>0.7</version>
 		</dependency>
 
 		<!-- jackson -->

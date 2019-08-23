@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class BiDatabaseConfiguration {
 
     @Bean
+    @Primary
     @ConfigurationProperties(prefix = "spring.mysql.datasource.bi")
     public DataSource biMysqlDataSource() {
         return DataSourceBuilder

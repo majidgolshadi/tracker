@@ -28,7 +28,6 @@ import javax.sql.DataSource;
 public class TrackerDatabaseConfiguration {
 
     @Bean
-    @Primary
     @ConfigurationProperties(prefix = "spring.mysql.datasource.tracker")
     public DataSource trackerMysqlDataSource() {
         return DataSourceBuilder
@@ -36,7 +35,6 @@ public class TrackerDatabaseConfiguration {
                 .build();
     }
 
-    @Primary
     @Bean(name = "trackerMysqlEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean trackerMysqlEntityManagerFactory(EntityManagerFactoryBuilder builder) {
         return builder
@@ -46,7 +44,6 @@ public class TrackerDatabaseConfiguration {
                 .build();
     }
 
-    @Primary
     @Bean(name = "trackerMysqlTransactionManager")
     public PlatformTransactionManager trackerMysqlTransactionManager(@Qualifier("trackerMysqlEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);
