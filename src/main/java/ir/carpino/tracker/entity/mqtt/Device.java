@@ -2,15 +2,11 @@ package ir.carpino.tracker.entity.mqtt;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vividsolutions.jts.geom.Coordinate;
 import lombok.Getter;
 import lombok.Setter;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.distance.CartesianDistCalc;
-import org.locationtech.spatial4j.shape.impl.PointImpl;
-import org.locationtech.spatial4j.shape.jts.JtsPoint;
-
-import java.math.BigDecimal;
+import org.locationtech.spatial4j.distance.DistanceUtils;
 
 
 @Getter
@@ -66,6 +62,6 @@ public class Device {
     private SpatialContext ctx = SpatialContext.GEO;
 
     public Double getGeoDistance(Double lat, Double lon) {
-        return geoCalculator.distance(ctx.getShapeFactory().pointXY(this.lat, this.lon), lat, lon);
+        return DistanceUtils.DEG_TO_KM * geoCalculator.distance(ctx.getShapeFactory().pointXY(this.lat, this.lon), lat, lon);
     }
 }

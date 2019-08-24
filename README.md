@@ -29,7 +29,55 @@ tracker.mqtt.location-topic=<MQTT_TOPIC>
 
 tracker.cache.expire-time-milliseconds=10000
 
+tracker.db.update-tracker-mysql.active=false
 tracker.db.update-tracker-mysql-milliseconds-rate=1000
 tracker.db.update-bi-mysql-milliseconds-rate=2000
 
+```
+
+API
+---
+|Type|Uri|Description|
+|---|---|---|
+|GET|`/v1/driver/near`|get driver ids that they near lat & lon|
+|GET|`/v1/driver/location`|get all driver information if no driverId specified|
+
+request sample
+```bash
+# Get all near online driver ids
+# distance unit is kilometer
+ 
+$ curl -XGET "localhost:8080/v1/driver/near?lat=35.7018057&lon=51.4254936&distance=0.2" 
+```
+response sample is like:
+```json
+["5bcec53924aa9a000149546e","5b6bd112a7b11b000186df23"]
+```
+---
+
+request sample
+```bash
+# Get single driver lat and lon
+ 
+$ curl -XGET "localhost:8080/v1/driver/location?driverId=5bcec53924aa9a000149546e" 
+```
+response sample is like:
+```json
+[{"id":"5bcec53924aa9a000149546e","lat":35.7055252,"lon":51.3799262}]
+```
+
+---
+
+request sample
+```bash
+# Get all online drivers location
+ 
+$ curl -XGET localhost:8080/v1/driver/location
+```
+response sample is like:
+```json
+[
+  {"id":"5ced14b52ab79c000152eaa9","lat":35.7081011,"lon":51.3953885},
+  {"id":"5b8a40e324aa9a0001335815","lat":35.7573133,"lon":51.4094223}
+]
 ```
