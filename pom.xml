@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>ir.carpino</groupId>
 	<artifactId>tracker</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<name>tracker</name>
 	<description>persist driver location for bi and find location services</description>
 
