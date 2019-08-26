@@ -33,6 +33,8 @@ tracker.db.update-tracker-mysql.active=false
 tracker.db.update-tracker-mysql-milliseconds-rate=1000
 tracker.db.update-bi-mysql-milliseconds-rate=2000
 
+tracker.driver.car-category-type=NORMAL,VIP,WOMEN,VAN,AFFORDABLE
+
 ```
 
 API
@@ -46,13 +48,16 @@ request sample
 ```bash
 # Get all near online driver ids
 # distance unit is kilometer
+# category return all type if this parameter is not set
  
-$ curl -XGET "localhost:8080/v1/driver/near?lat=35.7018057&lon=51.4254936&distance=0.2" 
+$ curl -XGET "localhost:8080/v1/driver/near?lat=35.7018057&lon=51.4254936&distance=0.2&category=VIP" 
 ```
 response sample is like:
 ```json
 ["5bcec53924aa9a000149546e","5b6bd112a7b11b000186df23"]
 ```
+if the category type is not define in configuration file the API `return 400` status code 
+
 ---
 
 request sample

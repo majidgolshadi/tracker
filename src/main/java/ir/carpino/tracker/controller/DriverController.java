@@ -1,9 +1,11 @@
 package ir.carpino.tracker.controller;
 
+import ir.carpino.tracker.controller.exception.CarCategoryNotFoundException;
 import ir.carpino.tracker.entity.mqtt.Device;
 import ir.carpino.tracker.entity.rest.Driver;
 import ir.carpino.tracker.repository.OnlineUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -16,13 +18,37 @@ public class DriverController {
     @Autowired
     OnlineUserRepository repository;
 
+    @Value("#{'${tracker.driver.car-category-type}'.split(',')}")
+    private List<String> categoryType;
+
+    /**
+     *
+     * @param userLat
+     * @param userLog
+     * @param distance
+     * @param category optional return all types if it's null
+     * @return
+     */
     @GetMapping("/v1/driver/near")
-    public List<String> nearDrivers(@RequestParam(value = "lat") double userLat, @RequestParam(value = "lon") double userLog, @RequestParam(value = "distance") double distance) {
+    public List<String> nearDrivers(@RequestParam(value = "lat") double userLat, @RequestParam(value = "lon") double userLog, @RequestParam(value = "distance") double distance, @RequestParam(value = "category", required = false) String category) {
+
+        if (category != null && !categoryType.contains(category)) {
+            throw new CarCategoryNotFoundException(String.format("category type %s not found", category));
+        }
 
         return repository.getOnlineUsers()
                 .values()
                 .stream()
                 .filter(device -> distance > device.getGeoDistance(userLat, userLog))
+                .filter(device -> {
+                    if (category == null)
+                        return true;
+
+                    if (device.getCarCategory().equals(category))
+                        return true;
+
+                    return false;
+                })
                 .map(Device::getId)
                 .collect(Collectors.toList());
     }
