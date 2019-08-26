@@ -39,7 +39,6 @@ public class DriverController {
         return repository.getOnlineUsers()
                 .values()
                 .stream()
-                .filter(device -> distance > device.getGeoDistance(userLat, userLog))
                 .filter(device -> {
                     if (category == null)
                         return true;
@@ -49,6 +48,7 @@ public class DriverController {
 
                     return false;
                 })
+                .filter(device -> distance > device.getGeoDistance(userLat, userLog))
                 .map(Device::getId)
                 .collect(Collectors.toList());
     }
