@@ -30,7 +30,7 @@ public class DriverController {
      * @return
      */
     @GetMapping("/v1/driver/near")
-    public List<String> nearDrivers(@RequestParam(value = "lat") double userLat, @RequestParam(value = "lon") double userLog, @RequestParam(value = "distance") double distance, @RequestParam(value = "category", required = false) String category) {
+    public List<Driver> nearDrivers(@RequestParam(value = "lat") double userLat, @RequestParam(value = "lon") double userLog, @RequestParam(value = "distance") double distance, @RequestParam(value = "category", required = false) String category) {
 
         if (category != null && !categoryType.contains(category)) {
             throw new CarCategoryNotFoundException(String.format("category type %s not found", category));
@@ -49,7 +49,7 @@ public class DriverController {
                     return false;
                 })
                 .filter(device -> distance > device.getGeoDistance(userLat, userLog))
-                .map(Device::getId)
+                .map(device -> Driver.builder().id(device.getId()).category(device.getCarCategory()).build())
                 .collect(Collectors.toList());
     }
 
@@ -64,6 +64,7 @@ public class DriverController {
                             .id(device.getId())
                             .lat(device.getLat())
                             .lon(device.getLon())
+                            .category(device.getCarCategory())
                     .build()
             );
 
@@ -72,7 +73,12 @@ public class DriverController {
 
         return repository.getOnlineUsers()
                 .values().stream()
-                .map(device -> Driver.builder().id(device.getId()).lat(device.getLat()).lon(device.getLon()).build())
-                .collect(Collectors.toList());
+                .map(device -> Driver.builder().id(
+                        device.getId())
+                        .lat(device.getLat())
+                        .lon(device.getLon())
+                        .category(device.getCarCategory())
+                        .build()
+                ).collect(Collectors.toList());
     }
 }
