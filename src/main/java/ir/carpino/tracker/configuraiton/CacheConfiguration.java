@@ -22,7 +22,7 @@ public class CacheConfiguration {
     @Bean
     public Cache<String, Device> initCache() {
         return Caffeine.newBuilder()
-                .expireAfterAccess(expireTimeMilliseconds, TimeUnit.MILLISECONDS)
+                .expireAfterWrite(expireTimeMilliseconds, TimeUnit.MILLISECONDS)
                 .build();
     }
 }

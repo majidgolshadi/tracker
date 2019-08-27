@@ -49,8 +49,13 @@ public class DriverController {
                     return false;
                 })
                 .filter(device -> distance > device.getGeoDistance(userLat, userLog))
-                .map(device -> Driver.builder().id(device.getId()).category(device.getCarCategory()).build())
-                .collect(Collectors.toList());
+                .map(device -> Driver.builder()
+                        .id(device.getId())
+                        .lat(device.getLat())
+                        .lon(device.getLon())
+                        .category(device.getCarCategory())
+                        .build()
+                ).collect(Collectors.toList());
     }
 
     @GetMapping("/v1/driver/location")
@@ -61,10 +66,10 @@ public class DriverController {
             Device device = repository.getOnlineUsers().get(driverId);
             drivers.add(
                     Driver.builder()
-                            .id(device.getId())
-                            .lat(device.getLat())
-                            .lon(device.getLon())
-                            .category(device.getCarCategory())
+                    .id(device.getId())
+                    .lat(device.getLat())
+                    .lon(device.getLon())
+                    .category(device.getCarCategory())
                     .build()
             );
 
