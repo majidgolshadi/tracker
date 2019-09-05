@@ -27,6 +27,9 @@ public class MysqlPersister {
 
     private final GeometryFactory factory;
 
+    private static int biCounter = 0;
+    private static int trackerCounter = 0;
+
     public MysqlPersister(OnlineUserRepository onlineUserRepository, DriverLocationRepository driverLocationRepository, BiDriverLocationRepository biDriverLocationRepository) {
         this.driverLocationRepository = driverLocationRepository;
         this.biDriverLocationRepository = biDriverLocationRepository;
@@ -39,8 +42,12 @@ public class MysqlPersister {
     public void biDbUpdate() {
         log.trace("update bi mysql db");
 
+        biCounter = 0;
+
         try {
             onlineUserRepository.getOnlineUsers().forEach((userId, device) -> {
+                biCounter++;
+
                 BiDriverLocation driverLocation = new BiDriverLocation();
                 driverLocation.setDriverId(device.getId());
                 driverLocation.setCarCategory(device.getCarCategory());
@@ -55,6 +62,8 @@ public class MysqlPersister {
         } catch (Exception ex) {
             log.error("persist in bi db error {}", ex.getCause());
         }
+
+        log.info("add {} driver data tracker to bi table", biCounter);
     }
 
 
@@ -64,8 +73,12 @@ public class MysqlPersister {
             return;
         }
 
+        trackerCounter = 0;
+
         log.trace("update tracker mysql db");
         onlineUserRepository.getOnlineUsers().forEach((userId, device) -> {
+
+            trackerCounter++;
 
             DriverLocation driverlocation = new DriverLocation(
                     device.getId(),
@@ -85,5 +98,7 @@ public class MysqlPersister {
                 log.error("persist in tracker db error {}", ex.getCause());
             }
         });
+
+        log.info("update {} driver tracker data", trackerCounter);
     }
 }
