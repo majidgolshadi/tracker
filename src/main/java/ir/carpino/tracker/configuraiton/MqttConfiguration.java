@@ -26,7 +26,7 @@ public class MqttConfiguration {
         MqttConnectOptions options = new MqttConnectOptions();
 
         options.setAutomaticReconnect(true);
-        options.setCleanSession(true);
+        options.setCleanSession(false);
         options.setConnectionTimeout(connectionTimeout);
 
         options.setUserName(username);

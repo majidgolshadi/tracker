@@ -35,16 +35,24 @@ public class MqttService implements IMqttMessageListener {
 
     @PostConstruct
     private void subscribe() throws MqttException {
-        client.subscribe(locationTopic, 2, this);
+        client.subscribe(locationTopic, this);
     }
 
     @Override
-    public void messageArrived(String topic, MqttMessage message) throws Exception {
-        String content = message.toString();
-        Device device = mapper.readValue(content, Device.class);
-        device.setNamespaceMetaData(topic);
-        device.setPayload(message.getPayload().toString());
+    public void messageArrived(String topic, MqttMessage message) throws MqttException {
+        try {
+            String content = message.toString();
+            Device device = mapper.readValue(content, Device.class);
+            device.setNamespaceMetaData(topic);
+            device.setPayload(message.getPayload().toString());
 
-        onlineUserRepository.aliveUser(device);
+            onlineUserRepository.aliveUser(device);
+        } catch (Exception ex) {
+            log.error("pars MQTT income data error {}", ex.getCause());
+
+            log.info("unsubscribe and subscribe again to {}", locationTopic);
+            client.unsubscribe(locationTopic);
+            this.subscribe();
+        }
     }
 }
