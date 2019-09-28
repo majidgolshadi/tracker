@@ -26,6 +26,8 @@ tracker.mqtt.password=<PASSWORD>
 tracker.mqtt.connection-timeout=5
 
 tracker.mqtt.location-topic=<MQTT_TOPIC>
+tracker.mqtt.data-duplication-threshold=5
+tracker.mqtt.connection-validation-milliseconds-rate=3000
 
 tracker.cache.expire-time-milliseconds=10000
 
