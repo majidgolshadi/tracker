@@ -10,6 +10,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -20,6 +21,12 @@ public class MqttService implements IMqttMessageListener {
 
     @Value("${tracker.mqtt.location-topic}")
     private String locationTopic;
+
+    @Value("${tracker.mqtt.data-duplication-threshold}")
+    private int threshold;
+
+    private int duplicationTime;
+    private int lastOnlineUsers;
 
     private final IMqttClient client;
     private final OnlineUserRepository onlineUserRepository;
@@ -38,6 +45,18 @@ public class MqttService implements IMqttMessageListener {
         client.subscribe(locationTopic, this);
     }
 
+    private void resubscribe() {
+        log.warn("unsubscribe/subscribe to topic {}", locationTopic);
+
+        try {
+            client.unsubscribe(locationTopic);
+            this.subscribe();
+
+        } catch (MqttException ex) {
+            log.error(ex.getMessage());
+        }
+    }
+
     @Override
     public void messageArrived(String topic, MqttMessage message) throws MqttException {
         try {
@@ -49,10 +68,29 @@ public class MqttService implements IMqttMessageListener {
             onlineUserRepository.aliveUser(device);
         } catch (Exception ex) {
             log.error("pars MQTT income data error {}", ex.getCause());
-
-            log.info("unsubscribe and subscribe again to {}", locationTopic);
-            client.unsubscribe(locationTopic);
-            this.subscribe();
+            resubscribe();
         }
+    }
+
+    /**
+     * Based on EMQX issue https://github.com/emqx/emqx/issues/1216 recover connection with monitor data set size
+     * @throws MqttException
+     */
+    @Scheduled(fixedRateString = "${tracker.mqtt.connection-validation-milliseconds-rate}")
+    public void checkIncomingOnlineDataValidation() {
+        int onlineUsers = onlineUserRepository.getOnlineUsers().size();
+
+        if (lastOnlineUsers == onlineUsers) {
+            duplicationTime++;
+        } else {
+            duplicationTime = 0;
+        }
+
+        if (duplicationTime > threshold) {
+            resubscribe();
+            duplicationTime = 0;
+        }
+
+        lastOnlineUsers = onlineUsers;
     }
 }
