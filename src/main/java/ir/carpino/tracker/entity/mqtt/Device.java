@@ -8,6 +8,8 @@ import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.distance.CartesianDistCalc;
 import org.locationtech.spatial4j.distance.DistanceUtils;
 
+import javax.annotation.PostConstruct;
+
 
 @Getter
 @Setter
@@ -21,8 +23,7 @@ public class Device {
     @JsonProperty("loc")
     private String location;
 
-    @JsonProperty("ts")
-    private String timeStamp;
+    private long timeStamp = System.currentTimeMillis();
 
     private String payload;
 
@@ -46,10 +47,6 @@ public class Device {
 
         lon = Double.valueOf(geoLoc[1]);
         f_lon = Float.valueOf(geoLoc[1]);
-    }
-
-    public long getLongTimestamp() {
-        return Long.valueOf(timeStamp);
     }
 
     public void setNamespaceMetaData(String namespaceMetaData) {

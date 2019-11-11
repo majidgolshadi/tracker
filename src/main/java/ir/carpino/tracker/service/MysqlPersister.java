@@ -55,7 +55,7 @@ public class MysqlPersister {
                 driverLocation.setLon(device.getLon());
                 driverLocation.setStatus(device.getStatus());
                 driverLocation.setController(device.getController());
-                driverLocation.setTimestamp(new Date(device.getLongTimestamp()));
+                driverLocation.setTimestamp(new Date(device.getTimeStamp()));
 
                 biDriverLocationRepository.save(driverLocation);
             });
