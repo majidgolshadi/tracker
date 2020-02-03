@@ -23,6 +23,7 @@ public class Device {
     @JsonProperty("loc")
     private String location;
 
+    @JsonProperty(value = "ts")
     private long timeStamp = System.currentTimeMillis();
 
     private String payload;

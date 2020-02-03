@@ -37,23 +37,23 @@ public class DriverController {
         }
 
         return repository.getOnlineUsers()
-                .values()
+                .entrySet()
                 .stream()
-                .filter(device -> {
+                .filter(entry -> {
                     if (category == null)
                         return true;
 
-                    if (device.getCarCategory().equals(category))
+                    if (entry.getValue().getCarCategory().equals(category))
                         return true;
 
                     return false;
                 })
-                .filter(device -> distance > device.getGeoDistance(userLat, userLog))
-                .map(device -> Driver.builder()
-                        .id(device.getId())
-                        .lat(device.getLat())
-                        .lon(device.getLon())
-                        .category(device.getCarCategory())
+                .filter(entry -> distance > entry.getValue().getGeoDistance(userLat, userLog))
+                .map(entry -> Driver.builder()
+                        .id(entry.getKey())
+                        .lat(entry.getValue().getLat())
+                        .lon(entry.getValue().getLon())
+                        .category(entry.getValue().getCarCategory())
                         .build()
                 ).collect(Collectors.toList());
     }
