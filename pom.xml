@@ -16,9 +16,8 @@
 
 	<properties>
 		<java.version>1.8</java.version>
-		<jackson.version>2.9.10</jackson.version>
-		<jackson.databind.version>2.9.10</jackson.databind.version>
-		<caffein.version>2.6.2</caffein.version>
+		<jackson.version>2.10.2</jackson.version>
+		<hazelcast.version>3.12.6</hazelcast.version>
 		<mqtt-paho-client.verison>1.2.1</mqtt-paho-client.verison>
 	</properties>
 
@@ -36,10 +35,17 @@
 			<version>${mqtt-paho-client.verison}</version>
 		</dependency>
 
+		<!-- Hazelcast -->
 		<dependency>
-			<groupId>com.github.ben-manes.caffeine</groupId>
-			<artifactId>caffeine</artifactId>
-			<version>${caffein.version}</version>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast</artifactId>
+			<version>${hazelcast.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast-client</artifactId>
+			<version>${hazelcast.version}</version>
 		</dependency>
 
 		<!-- Geo -->
@@ -59,7 +65,7 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>${jackson.databind.version}</version>
+			<version>${jackson.version}</version>
 		</dependency>
 
 		<dependency>
@@ -110,6 +116,10 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>

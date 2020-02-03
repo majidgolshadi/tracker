@@ -1,25 +1,27 @@
 package ir.carpino.tracker.repository;
 
-import com.github.benmanes.caffeine.cache.Cache;
+import com.hazelcast.core.ReplicatedMap;
 import ir.carpino.tracker.entity.mqtt.Device;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.concurrent.ConcurrentMap;
+import java.util.Map;
 
-@Slf4j
 @Repository
 public class OnlineUserRepository {
 
-    @Autowired
-    private Cache<String, Device> cache;
+    private ReplicatedMap<String, Device> map;
 
-    public void aliveUser(Device device) {
-        cache.put(device.getId(), device);
+    @Autowired
+    public OnlineUserRepository(ReplicatedMap<String, Device> replicatedMap) {
+        map = replicatedMap;
     }
 
-    public ConcurrentMap<String, Device> getOnlineUsers() {
-        return cache.asMap();
+    public void aliveUser(String userId, Device device) {
+        map.put(userId, device);
+    }
+
+    public Map<String, Device> getOnlineUsers() {
+        return map;
     }
 }

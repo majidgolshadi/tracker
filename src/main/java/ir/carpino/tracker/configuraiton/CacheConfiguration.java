@@ -1,28 +1,33 @@
 package ir.carpino.tracker.configuraiton;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
+import com.hazelcast.config.Config;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.ReplicatedMap;
 import ir.carpino.tracker.entity.mqtt.Device;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.concurrent.TimeUnit;
+import org.springframework.context.annotation.Primary;
 
 
 @Setter
 @Getter
 @Configuration
-@ConfigurationProperties(prefix = "tracker.cache")
 public class CacheConfiguration {
-    private long expireTimeMilliseconds;
+
+    private final static String REPLICATED_MAP_NAME = "points";
 
     @Bean
-    public Cache<String, Device> initCache() {
-        return Caffeine.newBuilder()
-                .expireAfterWrite(expireTimeMilliseconds, TimeUnit.MILLISECONDS)
-                .build();
+    @Primary
+    public  HazelcastInstance initCache() {
+        Config cfg = new Config();
+        return Hazelcast.newHazelcastInstance(cfg);
+    }
+
+    @Bean
+    public ReplicatedMap<String, Device> dataStore(HazelcastInstance instance) {
+        return instance.getReplicatedMap(REPLICATED_MAP_NAME);
     }
 }

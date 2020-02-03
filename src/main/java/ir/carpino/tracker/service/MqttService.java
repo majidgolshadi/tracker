@@ -65,7 +65,7 @@ public class MqttService implements IMqttMessageListener {
             device.setNamespaceMetaData(topic);
             device.setPayload(message.getPayload().toString());
 
-            onlineUserRepository.aliveUser(device);
+            onlineUserRepository.aliveUser(device.getId(), device);
         } catch (Exception ex) {
             log.error("pars MQTT income data error {}", ex.getCause());
             resubscribe();
