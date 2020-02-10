@@ -4,6 +4,7 @@ package ir.carpino.tracker.entity.mysql;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -29,4 +30,8 @@ public class DriverLocation {
 
     @Column(nullable = false)
     private double lon;
+
+    @Column(columnDefinition = "varchar(255)", nullable = false)
+    @Index(name = "rev_index")
+    private Rev rev;
 }

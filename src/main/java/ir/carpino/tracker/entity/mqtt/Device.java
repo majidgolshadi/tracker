@@ -31,9 +31,6 @@ public class Device {
     private double lat;
     private double lon;
 
-    private float f_lat;
-    private float f_lon;
-
     private String carCategory;
     private String status;
     private String controller;
@@ -44,10 +41,7 @@ public class Device {
         String[] geoLoc = this.location.split(",");
 
         lat = Double.valueOf(geoLoc[0]);
-        f_lat = Float.valueOf(geoLoc[0]);
-
         lon = Double.valueOf(geoLoc[1]);
-        f_lon = Float.valueOf(geoLoc[1]);
     }
 
     public void setNamespaceMetaData(String namespaceMetaData) {
