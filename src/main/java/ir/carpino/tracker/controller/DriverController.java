@@ -1,7 +1,8 @@
+/*
 package ir.carpino.tracker.controller;
 
 import ir.carpino.tracker.controller.exception.CarCategoryNotFoundException;
-import ir.carpino.tracker.entity.mqtt.Device;
+import ir.carpino.tracker.entity.mqtt.MqttDriverLocation;
 import ir.carpino.tracker.entity.rest.Driver;
 import ir.carpino.tracker.repository.OnlineUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +22,16 @@ public class DriverController {
     @Value("#{'${tracker.driver.car-category-type}'.split(',')}")
     private List<String> categoryType;
 
-    /**
+    */
+/**
      *
      * @param userLat
      * @param userLog
      * @param distance
      * @param category optional return all types if it's null
      * @return
-     */
+     *//*
+
     @GetMapping("/v1/driver/near")
     public List<Driver> nearDrivers(@RequestParam(value = "lat") double userLat, @RequestParam(value = "lon") double userLog, @RequestParam(value = "distance") double distance, @RequestParam(value = "category", required = false) String category) {
 
@@ -48,7 +51,7 @@ public class DriverController {
 
                     return false;
                 })
-                .filter(entry -> distance > entry.getValue().getGeoDistance(userLat, userLog))
+                .filter(entry -> distance > entry.getValue().distanceFromKM(userLat, userLog))
                 .map(entry -> Driver.builder()
                         .id(entry.getKey())
                         .lat(entry.getValue().getLat())
@@ -63,7 +66,7 @@ public class DriverController {
         List<Driver> drivers = new ArrayList<>();
 
         if (driverId != null) {
-            Device device = repository.getOnlineUsers().get(driverId);
+            MqttDriverLocation device = repository.getOnlineUsers().get(driverId);
             drivers.add(
                     Driver.builder()
                     .id(device.getId())
@@ -87,3 +90,4 @@ public class DriverController {
                 ).collect(Collectors.toList());
     }
 }
+*/

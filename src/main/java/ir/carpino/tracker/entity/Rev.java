@@ -1,6 +1,4 @@
-package ir.carpino.tracker.entity.mysql;
-
-import com.sun.xml.internal.ws.encoding.soap.DeserializationException;
+package ir.carpino.tracker.entity;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -13,7 +11,7 @@ public class Rev implements Serializable {
         String[] seqUuid = currentRev.split("-", 1);
 
         if (seqUuid.length < 1) {
-            throw new DeserializationException("Invalid rev string structure");
+            throw new RuntimeException("Invalid rev string structure");
         }
 
         this.seq = Integer.parseInt(seqUuid[0]);

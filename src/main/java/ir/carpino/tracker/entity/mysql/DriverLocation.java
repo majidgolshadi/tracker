@@ -1,22 +1,19 @@
 package ir.carpino.tracker.entity.mysql;
 
 
+import ir.carpino.tracker.entity.Rev;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Index;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
 @Getter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "driver_location")
+@Table(name = "driver_location", indexes = { @Index(columnList = "rev", name = "rev_index")})
 public class DriverLocation {
     @Id
     @Column(length = 24, nullable = false)
@@ -32,6 +29,8 @@ public class DriverLocation {
     private double lon;
 
     @Column(columnDefinition = "varchar(255)", nullable = false)
-    @Index(name = "rev_index")
     private Rev rev;
+
+    @Column(name = "car_category", length = 16, nullable = false)
+    private String carCategory;
 }

@@ -1,7 +1,7 @@
 package ir.carpino.tracker.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import ir.carpino.tracker.entity.mqtt.Device;
+import ir.carpino.tracker.entity.mqtt.MqttDriverLocation;
 import ir.carpino.tracker.repository.OnlineUserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
@@ -61,11 +61,10 @@ public class MqttService implements IMqttMessageListener {
     public void messageArrived(String topic, MqttMessage message) throws MqttException {
         try {
             String content = message.toString();
-            Device device = mapper.readValue(content, Device.class);
-            device.setNamespaceMetaData(topic);
-            device.setPayload(message.getPayload().toString());
+            MqttDriverLocation driverLocation = mapper.readValue(content, MqttDriverLocation.class);
+            driverLocation.setNamespaceMetaData(topic);
 
-            onlineUserRepository.aliveUser(device.getId(), device);
+            onlineUserRepository.aliveUser(driverLocation.getId(), driverLocation);
         } catch (Exception ex) {
             log.error("pars MQTT income data error {}", ex.getCause());
             resubscribe();

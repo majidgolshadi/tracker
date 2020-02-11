@@ -1,7 +1,7 @@
 package ir.carpino.tracker.service;
 
 import ir.carpino.tracker.entity.mysql.DriverLocation;
-import ir.carpino.tracker.entity.mysql.Rev;
+import ir.carpino.tracker.entity.Rev;
 import ir.carpino.tracker.repository.OnlineUserRepository;
 import ir.carpino.tracker.repository.tracker.DriverLocationRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +10,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
-import java.sql.Driver;
 import java.util.Optional;
 
 
@@ -40,13 +39,18 @@ public class MysqlPersister {
         trackerCounter = 0;
 
         log.trace("update tracker mysql db");
-        onlineUserRepository.getOnlineUsers().forEach( (id, device) -> {
+        onlineUserRepository.getOnlineUsers().forEach( (id, driverData) -> {
 
+            log.info("driver id {}", id);
             trackerCounter++;
 
-            Date timestamp = new Date(device.getTimeStamp());
+            Date timestamp = new Date(driverData.getDriverLocation().getTimeStamp());
             boolean upsertFailed = false;
-            driverLocationRepository.upsert("", "", id, device.getLat(), device.getLon(),
+
+            driverLocationRepository.upsert_driver_location(
+                    driverData.getRev().toString(), Rev.generateRev(driverData.getRev()).toString(),
+                    id, driverData.getDriverLocation().getCarCategory(),
+                    driverData.getDriverLocation().getLat(), driverData.getDriverLocation().getLon(),
                     timestamp, upsertFailed);
 
             if (upsertFailed) {
@@ -55,13 +59,14 @@ public class MysqlPersister {
                 if (driverLocationOpt.isPresent()) {
                     DriverLocation driver = (DriverLocation) driverLocationOpt.get();
 
-                    if (device.getTimeStamp() > driver.getTimestamp().getTime()) {
+                    if (driverData.getDriverLocation().getTimeStamp() > driver.getTimestamp().getTime()) {
                         DriverLocation driverlocation = new DriverLocation(
                                 id,
                                 timestamp,
-                                device.getLat(),
-                                device.getLon(),
-                                Rev.generateRev()
+                                driverData.getDriverLocation().getLat(),
+                                driverData.getDriverLocation().getLon(),
+                                Rev.generateRev(),
+                                driverData.getDriverLocation().getCarCategory()
                         );
 
 

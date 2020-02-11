@@ -8,15 +8,16 @@ import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.distance.CartesianDistCalc;
 import org.locationtech.spatial4j.distance.DistanceUtils;
 
-import javax.annotation.PostConstruct;
+import java.io.Serializable;
 
 
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Device {
+public class MqttDriverLocation implements Serializable {
 
-    CartesianDistCalc geoCalculator = new CartesianDistCalc();
+    private transient CartesianDistCalc geoCalculator = new CartesianDistCalc();
+    private transient SpatialContext ctx = SpatialContext.GEO;
 
     private String id;
 
@@ -26,14 +27,11 @@ public class Device {
     @JsonProperty(value = "ts")
     private long timeStamp = System.currentTimeMillis();
 
-    private String payload;
-
     private double lat;
     private double lon;
 
     private String carCategory;
     private String status;
-    private String controller;
 
     public void setLocation(String location) {
         this.location = location;
@@ -47,13 +45,11 @@ public class Device {
     public void setNamespaceMetaData(String namespaceMetaData) {
         String[] metadata = namespaceMetaData.split("/", 7);
         status = metadata[3];
-        controller = metadata[4];
+//        controller = metadata[4];
         carCategory = metadata[5];
     }
 
-    private SpatialContext ctx = SpatialContext.GEO;
-
-    public Double getGeoDistance(Double lat, Double lon) {
+    public double distanceFromKM(double lat, double lon) {
         return DistanceUtils.DEG_TO_KM * geoCalculator.distance(ctx.getShapeFactory().pointXY(this.lat, this.lon), lat, lon);
     }
 }
