@@ -1,7 +1,7 @@
 package ir.carpino.tracker.service;
 
-import ir.carpino.tracker.entity.mysql.DriverLocation;
 import ir.carpino.tracker.entity.Rev;
+import ir.carpino.tracker.entity.mysql.DriverLocation;
 import ir.carpino.tracker.repository.OnlineUserRepository;
 import ir.carpino.tracker.repository.tracker.DriverLocationRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Optional;
 
 
@@ -17,13 +19,13 @@ import java.util.Optional;
 @Service
 public class MysqlPersister {
 
-    private final DriverLocationRepository driverLocationRepository;
-    private final OnlineUserRepository onlineUserRepository;
+    private final String TIME_ZONE_ID = "Asia/Tehran";
 
     @Value("${tracker.db.update-tracker-mysql.active}")
     private boolean persistTrackerData;
 
-    private static int trackerCounter = 0;
+    private final DriverLocationRepository driverLocationRepository;
+    private final OnlineUserRepository onlineUserRepository;
 
     public MysqlPersister(OnlineUserRepository onlineUserRepository, DriverLocationRepository driverLocationRepository) {
         this.driverLocationRepository = driverLocationRepository;
@@ -36,51 +38,48 @@ public class MysqlPersister {
             return;
         }
 
-        trackerCounter = 0;
+        log.trace("update tracker db {}", onlineUserRepository.getOnlineUsers().size());
+        onlineUserRepository.getOnlineUsers().forEach((id, driverData) -> {
 
-        log.trace("update tracker mysql db");
-        onlineUserRepository.getOnlineUsers().forEach( (id, driverData) -> {
+            String currentRev = driverData.getRev().toString();
+            Rev nextRev = Rev.generateRev(driverData.getRev());
+            if (driverData.getRev().toString().equals(Rev.INIT_REV)) {
+                currentRev = "";
+            }
 
-            log.info("driver id {}", id);
-            trackerCounter++;
+            LocalDateTime timestamp = LocalDateTime.ofInstant(Instant.ofEpochMilli(driverData.getDriverLocation().getTimeStamp()), ZoneId.of(TIME_ZONE_ID));
+            log.debug("driver id: {} timestamp: {}", id, timestamp.atZone(ZoneId.of(TIME_ZONE_ID)));
 
-            Date timestamp = new Date(driverData.getDriverLocation().getTimeStamp());
-            boolean upsertFailed = false;
-
-            driverLocationRepository.upsert_driver_location(
-                    driverData.getRev().toString(), Rev.generateRev(driverData.getRev()).toString(),
+            boolean upsertFailed = driverLocationRepository.upsert_driver_location(
+                    currentRev, nextRev.toString(),
                     id, driverData.getDriverLocation().getCarCategory(),
                     driverData.getDriverLocation().getLat(), driverData.getDriverLocation().getLon(),
-                    timestamp, upsertFailed);
+                    timestamp);
 
-            if (upsertFailed) {
-                Optional driverLocationOpt = driverLocationRepository.findById(id);
+            if (!upsertFailed) {
+                driverData.setRev(nextRev);
+                return;
+            }
 
-                if (driverLocationOpt.isPresent()) {
-                    DriverLocation driver = (DriverLocation) driverLocationOpt.get();
+            Optional driverLocationOpt = driverLocationRepository.findById(id);
+            if (driverLocationOpt.isPresent()) {
 
-                    if (driverData.getDriverLocation().getTimeStamp() > driver.getTimestamp().getTime()) {
-                        DriverLocation driverlocation = new DriverLocation(
-                                id,
-                                timestamp,
-                                driverData.getDriverLocation().getLat(),
-                                driverData.getDriverLocation().getLon(),
-                                Rev.generateRev(),
-                                driverData.getDriverLocation().getCarCategory()
-                        );
+                DriverLocation driverLocation = (DriverLocation) driverLocationOpt.get();
 
+                if (driverData.getDriverLocation().getTimeStamp() > driverLocation.getTimestamp().atZone(ZoneId.of(TIME_ZONE_ID)).toInstant().toEpochMilli()) {
+                    driverLocation.setLat(driverData.getDriverLocation().getLat());
+                    driverLocation.setLon(driverData.getDriverLocation().getLon());
+                    driverLocation.setCarCategory(driverData.getDriverLocation().getCarCategory());
+                    driverLocation.setRev(Rev.generateRev(driverLocation.getRev()));
 
-                        try {
-                            driverLocationRepository.save(driverlocation);
-                        } catch (Exception ex) {
-                            log.error("persist in tracker db error {}", ex.getCause());
-                        }
+                    try {
+                        driverLocationRepository.save(driverLocation);
+                    } catch (Exception ex) {
+                        log.error("persist in tracker db error {}", ex.getCause());
                     }
                 }
             }
 
         });
-
-        log.info("update {} driver tracker data", trackerCounter);
     }
 }

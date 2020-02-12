@@ -15,6 +15,6 @@ public class DriverData implements Serializable {
 
     public DriverData(MqttDriverLocation driverLocation) {
         this.driverLocation = driverLocation;
-        this.rev = Rev.generateRev();
+        this.rev = new Rev();
     }
 }

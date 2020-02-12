@@ -1,28 +1,26 @@
 package ir.carpino.tracker.entity;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.Serializable;
 import java.util.UUID;
 
+@Slf4j
 public class Rev implements Serializable {
     private long seq;
     private String uuid;
 
-    public Rev(String currentRev) {
-        String[] seqUuid = currentRev.split("-", 1);
+    public final static String INIT_REV = "0-0";
 
-        if (seqUuid.length < 1) {
-            throw new RuntimeException("Invalid rev string structure");
-        }
-
-        this.seq = Integer.parseInt(seqUuid[0]);
-        this.uuid = seqUuid[1];
+    public Rev() {
+        seq = 0;
+        uuid = "0";
     }
 
-    private Rev(long seq, String uuid) {
+    public Rev(long seq, String uuid) {
         this.seq = seq;
         this.uuid = uuid;
     }
-
 
     public static Rev generateRev(Rev currentRev) {
         return new Rev(currentRev.seq + 1, UUID.randomUUID().toString());

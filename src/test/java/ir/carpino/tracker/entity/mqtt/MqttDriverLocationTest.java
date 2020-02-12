@@ -25,8 +25,6 @@ public class MqttDriverLocationTest {
         assertEquals("35.6440553", String.valueOf(device.getLat()));
         assertEquals("51.249601", String.valueOf(device.getLon()));
 
-        assertNotEquals(Long.valueOf("1563727427443"), Long.valueOf(device.getTimeStamp()));
-
-        System.out.print(device.getTimeStamp());
+        assertEquals(1563727427443L, device.getTimeStamp());
     }
 }
