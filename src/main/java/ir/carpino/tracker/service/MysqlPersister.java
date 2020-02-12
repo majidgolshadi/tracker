@@ -1,6 +1,7 @@
 package ir.carpino.tracker.service;
 
 import ir.carpino.tracker.entity.Rev;
+import ir.carpino.tracker.entity.hazelcast.DriverData;
 import ir.carpino.tracker.entity.mysql.DriverLocation;
 import ir.carpino.tracker.repository.OnlineUserRepository;
 import ir.carpino.tracker.repository.tracker.DriverLocationRepository;
@@ -38,11 +39,12 @@ public class MysqlPersister {
             return;
         }
 
-        log.trace("update tracker db {}", onlineUserRepository.getOnlineUsers().size());
+        log.info("update tracker db with {} drivers", onlineUserRepository.getOnlineUsers().size());
         onlineUserRepository.getOnlineUsers().forEach((id, driverData) -> {
 
             String currentRev = driverData.getRev().toString();
             Rev nextRev = Rev.generateRev(driverData.getRev());
+
             if (driverData.getRev().toString().equals(Rev.INIT_REV)) {
                 currentRev = "";
             }
@@ -50,36 +52,44 @@ public class MysqlPersister {
             LocalDateTime timestamp = LocalDateTime.ofInstant(Instant.ofEpochMilli(driverData.getDriverLocation().getTimeStamp()), ZoneId.of(TIME_ZONE_ID));
             log.debug("driver id: {} timestamp: {}", id, timestamp.atZone(ZoneId.of(TIME_ZONE_ID)));
 
-            boolean upsertFailed = driverLocationRepository.upsert_driver_location(
+            boolean done = driverLocationRepository.upsert_driver_location(
                     currentRev, nextRev.toString(),
                     id, driverData.getDriverLocation().getCarCategory(),
                     driverData.getDriverLocation().getLat(), driverData.getDriverLocation().getLon(),
                     timestamp);
 
-            if (!upsertFailed) {
+            if (done) {
+                // update driver data revision
                 driverData.setRev(nextRev);
                 return;
             }
 
-            Optional driverLocationOpt = driverLocationRepository.findById(id);
+            Optional<DriverLocation> driverLocationOpt = driverLocationRepository.findById(id);
             if (driverLocationOpt.isPresent()) {
 
-                DriverLocation driverLocation = (DriverLocation) driverLocationOpt.get();
-
-                if (driverData.getDriverLocation().getTimeStamp() > driverLocation.getTimestamp().atZone(ZoneId.of(TIME_ZONE_ID)).toInstant().toEpochMilli()) {
-                    driverLocation.setLat(driverData.getDriverLocation().getLat());
-                    driverLocation.setLon(driverData.getDriverLocation().getLon());
-                    driverLocation.setCarCategory(driverData.getDriverLocation().getCarCategory());
-                    driverLocation.setRev(Rev.generateRev(driverLocation.getRev()));
-
-                    try {
-                        driverLocationRepository.save(driverLocation);
-                    } catch (Exception ex) {
-                        log.error("persist in tracker db error {}", ex.getCause());
-                    }
+                try {
+                    DriverLocation driverLocation = driverLocationOpt.get();
+                    resolveConflict(driverData, driverLocation);
+                    driverData.setRev(driverLocation.getRev());
+                } catch (Exception ex) {
+                    log.error("conflict resolution error ", ex.getCause());
                 }
             }
 
         });
+    }
+
+    public boolean resolveConflict(DriverData driverData, DriverLocation driverLocation) {
+        if (driverData.getDriverLocation().getTimeStamp() < driverLocation.getTimestamp().atZone(ZoneId.of(TIME_ZONE_ID)).toInstant().toEpochMilli()) {
+            return false;
+        }
+
+        driverLocation.setLat(driverData.getDriverLocation().getLat());
+        driverLocation.setLon(driverData.getDriverLocation().getLon());
+        driverLocation.setCarCategory(driverData.getDriverLocation().getCarCategory());
+        driverLocation.setRev(Rev.generateRev(driverLocation.getRev()));
+
+        driverLocationRepository.save(driverLocation);
+        return true;
     }
 }
