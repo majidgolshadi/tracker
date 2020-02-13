@@ -6,6 +6,7 @@ import ir.carpino.tracker.entity.mysql.DriverLocation;
 import ir.carpino.tracker.repository.OnlineUserRepository;
 import ir.carpino.tracker.repository.tracker.DriverLocationRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -25,9 +26,10 @@ public class MysqlPersister {
     @Value("${tracker.db.update-tracker-mysql.active}")
     private boolean persistTrackerData;
 
-    private final DriverLocationRepository driverLocationRepository;
-    private final OnlineUserRepository onlineUserRepository;
+    private DriverLocationRepository driverLocationRepository;
+    private OnlineUserRepository onlineUserRepository;
 
+    @Autowired
     public MysqlPersister(OnlineUserRepository onlineUserRepository, DriverLocationRepository driverLocationRepository) {
         this.driverLocationRepository = driverLocationRepository;
         this.onlineUserRepository = onlineUserRepository;
@@ -64,23 +66,30 @@ public class MysqlPersister {
                 return;
             }
 
-            Optional<DriverLocation> driverLocationOpt = driverLocationRepository.findById(id);
-            if (driverLocationOpt.isPresent()) {
-
-                try {
-                    DriverLocation driverLocation = driverLocationOpt.get();
-                    resolveConflict(driverData, driverLocation);
-                    driverData.setRev(driverLocation.getRev());
-                } catch (Exception ex) {
-                    log.error("conflict resolution error ", ex.getCause());
-                }
+            try {
+                resolveConflict(driverData);
+            } catch (Exception ex) {
+                log.error("conflict resolution error ", ex.getCause());
             }
 
         });
     }
 
-    public boolean resolveConflict(DriverData driverData, DriverLocation driverLocation) {
-        if (driverData.getDriverLocation().getTimeStamp() < driverLocation.getTimestamp().atZone(ZoneId.of(TIME_ZONE_ID)).toInstant().toEpochMilli()) {
+    public boolean resolveConflict(DriverData driverData) {
+        String id = driverData.getDriverLocation().getId();
+        Optional<DriverLocation> driverLocationOpt = driverLocationRepository.findById(id);
+
+        if (!driverLocationOpt.isPresent()) {
+            return false;
+        }
+
+        DriverLocation driverLocation = driverLocationOpt.get();
+
+        // data in DB is newer than what data that exist in memory
+        long inMemoryDataTimestamp = driverData.getDriverLocation().getTimeStamp();
+        long dbDataTimestamp = driverLocation.getTimestamp().atZone(ZoneId.of(TIME_ZONE_ID)).toInstant().toEpochMilli();
+        if (dbDataTimestamp > inMemoryDataTimestamp) {
+            log.warn("db data timestamp {} is newer than in-memory one {}", dbDataTimestamp, inMemoryDataTimestamp);
             return false;
         }
 
@@ -88,8 +97,12 @@ public class MysqlPersister {
         driverLocation.setLon(driverData.getDriverLocation().getLon());
         driverLocation.setCarCategory(driverData.getDriverLocation().getCarCategory());
         driverLocation.setRev(Rev.generateRev(driverLocation.getRev()));
+        driverLocation.setTimestamp(LocalDateTime.ofInstant(Instant.ofEpochMilli(driverData.getDriverLocation().getTimeStamp()), ZoneId.of(TIME_ZONE_ID)));
 
         driverLocationRepository.save(driverLocation);
+
+        // update in memory rev data
+        driverData.setRev(driverLocation.getRev());
         return true;
     }
 }
