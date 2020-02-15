@@ -19,6 +19,7 @@
 		<jackson.version>2.10.2</jackson.version>
 		<hazelcast.version>3.12.6</hazelcast.version>
 		<mqtt-paho-client.verison>1.2.1</mqtt-paho-client.verison>
+		<http-client.version>4.5.11</http-client.version>
 	</properties>
 
 	<dependencies>
@@ -26,6 +27,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>${http-client.version}</version>
 		</dependency>
 
 		<!-- MQTT -->

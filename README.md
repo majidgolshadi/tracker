@@ -7,36 +7,35 @@ Driver position tracking to collect and store driver position in memory first an
 Configuration
 -------------
 ```application.properties
-spring.mysql.datasource.tracker.username=root
-spring.mysql.datasource.tracker.password=root
-spring.mysql.datasource.tracker.jdbc-url=jdbc:mysql://<TRACKER_DB_ADDRESS>:3306/<DB_NAME>
+server.port=8080
 
-spring.mysql.datasource.bi.username=root
-spring.mysql.datasource.bi.password=root
-spring.mysql.datasource.bi.jdbc-url=jdbc:mysql://<BI_DB_ADDRESS>:3306/<DB_NAME>
+spring.datasource.username=root
+spring.datasource.password=root
+spring.datasource.url=jdbc:mysql://172.100.0.2:3306/carpino
 
 spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.hibernate.ddl-auto=none
 spring.jpa.generate-ddl=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.spatial.dialect.mysql.MySQL56InnoDBSpatialDialect
 
-tracker.mqtt.url=tcp://<URL_ADDRESS>
-tracker.mqtt.username=<USER_NAME>
-tracker.mqtt.password=<PASSWORD>
+tracker.proxy.service-url=172.20.2.59
+tracker.proxy.service-port=7080
+
+tracker.mqtt.url=tcp://loc.carpino.info
+tracker.mqtt.username=DRIVER
+tracker.mqtt.password=DRIVER
 tracker.mqtt.connection-timeout=5
 
-tracker.mqtt.location-topic=<MQTT_TOPIC>
+tracker.mqtt.location-topic=loc/drv/#
 tracker.mqtt.data-duplication-threshold=5
 tracker.mqtt.connection-validation-milliseconds-rate=3000
 
-tracker.cache.expire-time-milliseconds=10000
+tracker.cache.expire-time-milliseconds=15000
 
-tracker.db.update-tracker-mysql.active=false
-tracker.db.update-tracker-mysql-milliseconds-rate=1000
-tracker.db.update-bi-mysql-milliseconds-rate=2000
+tracker.db.update-tracker-mysql.active=true
+tracker.db.update-tracker-mysql-milliseconds-rate=50000
 
 tracker.driver.car-category-type=NORMAL,VIP,WOMEN,VAN,AFFORDABLE
-
 ```
 
 API
@@ -45,6 +44,8 @@ API
 |---|---|---|
 |GET|`/v1/driver/near`|get driver ids that they near lat & lon|
 |GET|`/v1/driver/location`|get all driver information if no driverId specified|
+|POST|`/v1/master`|set master node|
+|ANY|`/proxy/*`|reverse proxy endpoint|
 
 request sample
 ```bash

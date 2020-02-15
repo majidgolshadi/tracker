@@ -1,14 +1,14 @@
 package ir.carpino.tracker.controller;
 
 import ir.carpino.tracker.controller.exception.CarCategoryNotFoundException;
-import ir.carpino.tracker.entity.hazelcast.DriverData;
 import ir.carpino.tracker.entity.mqtt.MqttDriverLocation;
 import ir.carpino.tracker.entity.rest.Driver;
 import ir.carpino.tracker.repository.OnlineUserRepository;
-import ir.carpino.tracker.service.MysqlPersister;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,19 +18,16 @@ import java.util.stream.Collectors;
 public class DriverController {
 
     private OnlineUserRepository repository;
-    private MysqlPersister persister;
 
     @Value("#{'${tracker.driver.car-category-type}'.split(',')}")
     private List<String> categoryType;
 
     @Autowired
-    public DriverController(OnlineUserRepository repository, MysqlPersister persister) {
+    public DriverController(OnlineUserRepository repository) {
         this.repository = repository;
-        this.persister = persister;
     }
 
     /**
-     *
      * @param userLat
      * @param userLog
      * @param distance
@@ -75,11 +72,11 @@ public class DriverController {
             MqttDriverLocation driver = repository.getOnlineUsers().get(driverId).getDriverLocation();
             drivers.add(
                     Driver.builder()
-                    .id(driver.getId())
-                    .lat(driver.getLat())
-                    .lon(driver.getLon())
-                    .category(driver.getCarCategory())
-                    .build()
+                            .id(driver.getId())
+                            .lat(driver.getLat())
+                            .lon(driver.getLon())
+                            .category(driver.getCarCategory())
+                            .build()
             );
 
             return drivers;
@@ -96,9 +93,5 @@ public class DriverController {
                 ).collect(Collectors.toList());
     }
 
-    @PostMapping("/v1/master")
-    public void setMaster() {
-        persister.persistTrackerData = true;
-    }
 }
 

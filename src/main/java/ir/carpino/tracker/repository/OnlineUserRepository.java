@@ -4,12 +4,17 @@ import com.hazelcast.core.ReplicatedMap;
 import ir.carpino.tracker.entity.hazelcast.DriverData;
 import ir.carpino.tracker.entity.mqtt.MqttDriverLocation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Repository
 public class OnlineUserRepository {
+
+    @Value("${tracker.cache.expire-time-milliseconds}")
+    private long ttl;
 
     private ReplicatedMap<String, DriverData> map;
 
@@ -22,7 +27,7 @@ public class OnlineUserRepository {
         DriverData driverData = map.getOrDefault(userId, new DriverData(mqttDriverLocation));
         driverData.setDriverLocation(mqttDriverLocation);
 
-        map.put(userId, driverData);
+        map.put(userId, driverData, ttl, TimeUnit.MILLISECONDS);
     }
 
     public Map<String, DriverData> getOnlineUsers() {
