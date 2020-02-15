@@ -1,9 +1,11 @@
 package ir.carpino.tracker.controller;
 
 import ir.carpino.tracker.controller.exception.CarCategoryNotFoundException;
-import ir.carpino.tracker.entity.mqtt.Device;
+import ir.carpino.tracker.entity.hazelcast.DriverData;
+import ir.carpino.tracker.entity.mqtt.MqttDriverLocation;
 import ir.carpino.tracker.entity.rest.Driver;
 import ir.carpino.tracker.repository.OnlineUserRepository;
+import ir.carpino.tracker.service.MysqlPersister;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -15,11 +17,17 @@ import java.util.stream.Collectors;
 @RestController
 public class DriverController {
 
-    @Autowired
-    OnlineUserRepository repository;
+    private OnlineUserRepository repository;
+    private MysqlPersister persister;
 
     @Value("#{'${tracker.driver.car-category-type}'.split(',')}")
     private List<String> categoryType;
+
+    @Autowired
+    public DriverController(OnlineUserRepository repository, MysqlPersister persister) {
+        this.repository = repository;
+        this.persister = persister;
+    }
 
     /**
      *
@@ -29,6 +37,7 @@ public class DriverController {
      * @param category optional return all types if it's null
      * @return
      */
+
     @GetMapping("/v1/driver/near")
     public List<Driver> nearDrivers(@RequestParam(value = "lat") double userLat, @RequestParam(value = "lon") double userLog, @RequestParam(value = "distance") double distance, @RequestParam(value = "category", required = false) String category) {
 
@@ -43,17 +52,17 @@ public class DriverController {
                     if (category == null)
                         return true;
 
-                    if (entry.getValue().getCarCategory().equals(category))
+                    if (entry.getValue().getDriverLocation().getCarCategory().equals(category))
                         return true;
 
                     return false;
                 })
-                .filter(entry -> distance > entry.getValue().getGeoDistance(userLat, userLog))
+                .filter(entry -> distance > entry.getValue().getDriverLocation().distanceFromKM(userLat, userLog))
                 .map(entry -> Driver.builder()
                         .id(entry.getKey())
-                        .lat(entry.getValue().getLat())
-                        .lon(entry.getValue().getLon())
-                        .category(entry.getValue().getCarCategory())
+                        .lat(entry.getValue().getDriverLocation().getLat())
+                        .lon(entry.getValue().getDriverLocation().getLon())
+                        .category(entry.getValue().getDriverLocation().getCarCategory())
                         .build()
                 ).collect(Collectors.toList());
     }
@@ -63,13 +72,13 @@ public class DriverController {
         List<Driver> drivers = new ArrayList<>();
 
         if (driverId != null) {
-            Device device = repository.getOnlineUsers().get(driverId);
+            MqttDriverLocation driver = repository.getOnlineUsers().get(driverId).getDriverLocation();
             drivers.add(
                     Driver.builder()
-                    .id(device.getId())
-                    .lat(device.getLat())
-                    .lon(device.getLon())
-                    .category(device.getCarCategory())
+                    .id(driver.getId())
+                    .lat(driver.getLat())
+                    .lon(driver.getLon())
+                    .category(driver.getCarCategory())
                     .build()
             );
 
@@ -79,11 +88,17 @@ public class DriverController {
         return repository.getOnlineUsers()
                 .values().stream()
                 .map(device -> Driver.builder().id(
-                        device.getId())
-                        .lat(device.getLat())
-                        .lon(device.getLon())
-                        .category(device.getCarCategory())
+                        device.getDriverLocation().getId())
+                        .lat(device.getDriverLocation().getLat())
+                        .lon(device.getDriverLocation().getLon())
+                        .category(device.getDriverLocation().getCarCategory())
                         .build()
                 ).collect(Collectors.toList());
     }
+
+    @PostMapping("/v1/master")
+    public void setMaster() {
+        persister.persistTrackerData = true;
+    }
 }
+
