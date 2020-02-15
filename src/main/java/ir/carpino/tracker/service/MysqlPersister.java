@@ -24,7 +24,7 @@ public class MysqlPersister {
     private final String TIME_ZONE_ID = "Asia/Tehran";
 
     @Value("${tracker.db.update-tracker-mysql.active}")
-    private boolean persistTrackerData;
+    public boolean persistTrackerData = false;
 
     private DriverLocationRepository driverLocationRepository;
     private OnlineUserRepository onlineUserRepository;
