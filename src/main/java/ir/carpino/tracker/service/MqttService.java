@@ -73,6 +73,7 @@ public class MqttService implements IMqttMessageListener {
 
     /**
      * Based on EMQX issue https://github.com/emqx/emqx/issues/1216 recover connection with monitor data set size
+     *
      * @throws MqttException
      */
     @Scheduled(fixedRateString = "${tracker.mqtt.connection-validation-milliseconds-rate}")

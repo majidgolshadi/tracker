@@ -3,7 +3,6 @@ package ir.carpino.tracker.controller;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,7 +25,7 @@ public class ReverseProxyController {
     @Value("${tracker.proxy.service-port}")
     private int port;
 
-    @RequestMapping("/proxy/**")
+    @RequestMapping("/**")
     public ResponseEntity mirrorRest(@RequestBody(required = false) String body,
                                      HttpMethod method, HttpServletRequest request, HttpServletResponse response)
             throws URISyntaxException {
