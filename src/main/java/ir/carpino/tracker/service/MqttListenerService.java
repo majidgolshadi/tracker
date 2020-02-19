@@ -17,7 +17,7 @@ import javax.annotation.PostConstruct;
 
 @Slf4j
 @Service
-public class MqttService implements IMqttMessageListener {
+public class MqttListenerService implements IMqttMessageListener {
 
     @Value("${tracker.mqtt.location-topic}")
     private String locationTopic;
@@ -33,7 +33,7 @@ public class MqttService implements IMqttMessageListener {
     private final ObjectMapper mapper;
 
     @Autowired
-    public MqttService(IMqttClient client, OnlineUserRepository onlineUserRepository) {
+    public MqttListenerService(IMqttClient client, OnlineUserRepository onlineUserRepository) {
         this.client = client;
         this.onlineUserRepository = onlineUserRepository;
 
@@ -66,7 +66,7 @@ public class MqttService implements IMqttMessageListener {
 
             onlineUserRepository.aliveUser(driverLocation.getId(), driverLocation);
         } catch (Exception ex) {
-            log.error("pars MQTT income data error {}", ex.getCause());
+            log.error("pars MQTT income data error", ex.getCause());
             resubscribe();
         }
     }

@@ -65,6 +65,7 @@ public final class HttpEntityFactory {
                     .body(e.getResponseBodyAsString());
         }
 
+        log.info("status_code: {}, url: {}", responseEntity.getStatusCodeValue(), requestUrl);
         return responseEntity;
     }
 }
