@@ -1,23 +1,22 @@
 package ir.carpino.tracker.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import ir.carpino.tracker.controller.exception.CarCategoryNotFoundException;
-import ir.carpino.tracker.entity.FindNearbyDrivers;
 import ir.carpino.tracker.entity.mqtt.MqttDriverLocation;
+import ir.carpino.tracker.entity.mqtt.NearbyDriverLog;
 import ir.carpino.tracker.entity.rest.Driver;
 import ir.carpino.tracker.repository.OnlineUserRepository;
-import ir.carpino.tracker.utils.CsvLogger;
 import ir.carpino.tracker.utils.GeoHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.paho.client.mqttv3.IMqttClient;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,23 +27,18 @@ public class DriverController {
 
     private GeoHelper geoHelper;
     private OnlineUserRepository repository;
-    private CsvLogger<FindNearbyDrivers> findNearbyDriversLogger;
+    private final IMqttClient mqttClient;
 
     @Value("#{'${tracker.driver.car-category-type}'.split(',')}")
     private List<String> categoryType;
 
-    @Value("${tracker.csv-file-path.find-nearby-drivers}")
-    private String findNearbyDriversCsvFilePath;
+    @Value("${tracker.mqtt.near-driver-log-topic}")
+    private String nearbyDriversTopic;
 
     @Autowired
-    public DriverController(OnlineUserRepository repository) {
+    public DriverController(IMqttClient mqttClient, OnlineUserRepository repository) {
+        this.mqttClient = mqttClient;
         this.repository = repository;
-    }
-
-    @PostConstruct
-    private void initLogger() throws IOException {
-        File findNearbyDriversCsvFile = new File(findNearbyDriversCsvFilePath);
-        findNearbyDriversLogger = new CsvLogger<>(findNearbyDriversCsvFile);
         geoHelper = new GeoHelper();
     }
 
@@ -55,46 +49,49 @@ public class DriverController {
      * @param category optional return all types if it's null
      * @return
      */
-
     @GetMapping("/v1/driver/near")
     public List<Driver> nearDrivers(@RequestParam(value = "lat") double userLat, @RequestParam(value = "lon") double userLog,
                                     @RequestParam(value = "distance") double distance, @RequestParam(value = "category", required = false)
                                             String category, @RequestParam(value = "rideId", required = false) String rideId) {
 
-        if (category != null && !categoryType.contains(category)) {
-            throw new CarCategoryNotFoundException(String.format("category type %s not found", category));
+        final String upperCaseCategory = category != null ? category.toUpperCase() : null;
+
+        if (upperCaseCategory != null && !categoryType.contains(upperCaseCategory)) {
+            throw new CarCategoryNotFoundException(String.format("category type %s not found", upperCaseCategory));
         }
 
         return repository.getOnlineUsers()
                 .entrySet()
                 .stream()
                 .filter(entry -> {
-                    if (category == null || category.isEmpty())
+                    if (upperCaseCategory == null || upperCaseCategory.isEmpty())
                         return true;
 
-                    if (entry.getValue().getDriverLocation().getCarCategory().equals(category))
+                    if (entry.getValue().getDriverLocation().getCarCategory().toUpperCase().equals(upperCaseCategory))
                         return true;
 
                     return false;
                 })
                 .filter(entry -> distance > geoHelper.distanceFromKM(entry.getValue().getDriverLocation().getLat(), entry.getValue().getDriverLocation().getLon(), userLat, userLog))
                 .map(entry -> {
-                    try {
-                        findNearbyDriversLogger.log(FindNearbyDrivers.builder()
-                                .driverId(entry.getValue().getDriverLocation().getId())
-                                .riderId(rideId)
-                                .timestamp(entry.getValue().getDriverLocation().getTimeStamp())
-                                .build());
-                    } catch (IOException e) {
-                        log.error("write into the csv error ", e.getCause());
-                    }
-
-                    return Driver.builder()
+                    Driver driver = Driver.builder()
                             .id(entry.getKey())
                             .lat(entry.getValue().getDriverLocation().getLat())
                             .lon(entry.getValue().getDriverLocation().getLon())
                             .category(entry.getValue().getDriverLocation().getCarCategory())
                             .build();
+
+                    try {
+                        mqttClient.publish(nearbyDriversTopic, new NearbyDriverLog(rideId, driver).toMqttMessage());
+                    } catch (JsonProcessingException e) {
+                        log.error("nearby driver log to json error: {}", e.getMessage());
+                    } catch (MqttPersistenceException e) {
+                        log.error("mqtt persistency error: {}", e.getMessage());
+                    } catch (MqttException e) {
+                        log.error("publish to mqtt error: {}", e.getMessage());
+                    }
+
+                    return driver;
                 }).collect(Collectors.toList());
     }
 
@@ -125,12 +122,6 @@ public class DriverController {
                         .category(device.getDriverLocation().getCarCategory())
                         .build()
                 ).collect(Collectors.toList());
-    }
-
-    @PostMapping("/v1/driver/logs/flush")
-    public void flushLogs() throws IOException {
-        findNearbyDriversLogger.flush();
-        log.info("flush driver logs into csv");
     }
 }
 
