@@ -54,20 +54,20 @@ public class DriverController {
                                     @RequestParam(value = "distance") double distance, @RequestParam(value = "category", required = false)
                                             String category, @RequestParam(value = "rideId", required = false) String rideId) {
 
-        final String upperCaseCategory = category != null ? category.toUpperCase() : null;
+        final String lowerCaseCategory = category != null ? category.toLowerCase() : null;
 
-        if (upperCaseCategory != null && !categoryType.contains(upperCaseCategory)) {
-            throw new CarCategoryNotFoundException(String.format("category type %s not found", upperCaseCategory));
+        if (lowerCaseCategory != null && !categoryType.contains(lowerCaseCategory)) {
+            throw new CarCategoryNotFoundException(String.format("category type %s not found", lowerCaseCategory));
         }
 
         return repository.getOnlineUsers()
                 .entrySet()
                 .stream()
                 .filter(entry -> {
-                    if (upperCaseCategory == null || upperCaseCategory.isEmpty())
+                    if (lowerCaseCategory == null || lowerCaseCategory.isEmpty())
                         return true;
 
-                    if (entry.getValue().getDriverLocation().getCarCategory().toUpperCase().equals(upperCaseCategory))
+                    if (entry.getValue().getDriverLocation().getCarCategory().toLowerCase().equals(lowerCaseCategory))
                         return true;
 
                     return false;

@@ -40,8 +40,7 @@ public class MqttDriverLocation implements Serializable {
 
     public void setNamespaceMetaData(String namespaceMetaData) {
         String[] metadata = namespaceMetaData.split("/", 7);
-        status = metadata[3];
-//        controller = metadata[4];
-        carCategory = metadata[5];
+        status = metadata[3].toLowerCase();
+        carCategory = metadata[5].toLowerCase();
     }
 }
