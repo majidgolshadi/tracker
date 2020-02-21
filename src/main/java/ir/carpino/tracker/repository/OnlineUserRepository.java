@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Repository
@@ -27,10 +26,14 @@ public class OnlineUserRepository {
         DriverData driverData = map.getOrDefault(userId, new DriverData(mqttDriverLocation));
         driverData.setDriverLocation(mqttDriverLocation);
 
-        map.put(userId, driverData, ttl, TimeUnit.MILLISECONDS);
+        synchronized (map) {
+            map.put(userId, driverData, ttl, TimeUnit.MILLISECONDS);
+        }
     }
 
-    public Map<String, DriverData> getOnlineUsers() {
-        return map;
+    public ReplicatedMap<String, DriverData> getOnlineUsers() {
+        synchronized (map) {
+            return map;
+        }
     }
 }

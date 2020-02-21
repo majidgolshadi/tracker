@@ -3,9 +3,9 @@ package ir.carpino.tracker.configuraiton;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 import com.hazelcast.core.ReplicatedMap;
 import ir.carpino.tracker.entity.hazelcast.DriverData;
-import ir.carpino.tracker.entity.mqtt.MqttDriverLocation;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +28,12 @@ public class CacheConfiguration {
     }
 
     @Bean
-    public ReplicatedMap<String, DriverData> dataStore(HazelcastInstance instance) {
+    public ReplicatedMap<String, DriverData> getReplicatedMap(HazelcastInstance instance) {
         return instance.getReplicatedMap(REPLICATED_MAP_NAME);
+    }
+
+    @Bean
+    public IMap<String, DriverData> getMap(HazelcastInstance instance) {
+        return instance.getMap(REPLICATED_MAP_NAME);
     }
 }
