@@ -66,7 +66,7 @@ public class MqttListenerService implements IMqttMessageListener {
 
             onlineUserRepository.aliveUser(driverLocation.getId(), driverLocation);
         } catch (Exception ex) {
-            log.error("pars MQTT income data error", ex.getCause());
+            log.error("parse MQTT income data error", ex.getCause());
             resubscribe();
         }
     }

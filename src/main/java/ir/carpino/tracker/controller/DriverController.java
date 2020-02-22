@@ -2,6 +2,8 @@ package ir.carpino.tracker.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import ir.carpino.tracker.controller.exception.CarCategoryNotFoundException;
+import ir.carpino.tracker.controller.exception.DriverNotFoundException;
+import ir.carpino.tracker.entity.hazelcast.DriverData;
 import ir.carpino.tracker.entity.mqtt.MqttDriverLocation;
 import ir.carpino.tracker.entity.mqtt.NearbyDriverLog;
 import ir.carpino.tracker.entity.rest.Driver;
@@ -13,6 +15,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -100,7 +103,13 @@ public class DriverController {
         List<Driver> drivers = new ArrayList<>();
 
         if (driverId != null) {
-            MqttDriverLocation driver = repository.getOnlineUsers().get(driverId).getDriverLocation();
+            DriverData driverData = repository.getOnlineUsers().get(driverId);
+
+            if (driverData == null) {
+                throw new DriverNotFoundException(String.format("driver %s Not Found", driverId));
+            }
+
+            MqttDriverLocation driver = driverData.getDriverLocation();
             drivers.add(
                     Driver.builder()
                             .id(driver.getId())

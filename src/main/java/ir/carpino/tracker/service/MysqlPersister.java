@@ -37,11 +37,11 @@ public class MysqlPersister {
 
     @Scheduled(fixedRateString = "${tracker.db.update-tracker-mysql-milliseconds-rate}")
     public void trackerDbUpdate() {
+        log.info("{} online drivers", onlineUserRepository.getOnlineUsers().size());
         if (!persistTrackerData) {
             return;
         }
 
-        log.info("update tracker db with {} drivers", onlineUserRepository.getOnlineUsers().size());
         onlineUserRepository.getOnlineUsers().forEach((id, driverData) -> {
 
             String currentRev = driverData.getRev().toString();
