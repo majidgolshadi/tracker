@@ -10,7 +10,11 @@ public class GeoHelper {
     private final SpatialContext ctx = SpatialContext.GEO;
 
     public double distanceFromKM(double latSrc, double lonSrc, double latDst, double lonDst) {
-        return DistanceUtils.DEG_TO_KM * geoCalculator.distance(
-                ctx.getShapeFactory().pointXY(latSrc, lonSrc), latDst, lonDst);
+        try {
+            return DistanceUtils.DEG_TO_KM * geoCalculator.distance(
+                    ctx.getShapeFactory().pointXY(latSrc, lonSrc), latDst, lonDst);
+        } catch (Exception ex) {
+            return Double.MAX_VALUE;
+        }
     }
 }

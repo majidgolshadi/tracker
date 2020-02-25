@@ -29,7 +29,7 @@ public class NearbyDriverLog implements Serializable {
 
         MqttMessage mqttMessage = new MqttMessage(mapper.writeValueAsBytes(this));
         mqttMessage.setRetained(true);
-        mqttMessage.setQos(1);
+        mqttMessage.setQos(0);
 
         return mqttMessage;
     }

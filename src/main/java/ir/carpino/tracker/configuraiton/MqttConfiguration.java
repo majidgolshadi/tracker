@@ -21,6 +21,7 @@ public class MqttConfiguration {
     private String username;
     private String password;
     private int connectionTimeout;
+    private int maxInflight = 1000;
 
     private MqttConnectOptions getMqttOption() {
         MqttConnectOptions options = new MqttConnectOptions();
@@ -28,6 +29,7 @@ public class MqttConfiguration {
         options.setAutomaticReconnect(true);
         options.setCleanSession(false);
         options.setConnectionTimeout(connectionTimeout);
+        options.setMaxInflight(maxInflight);
 
         options.setUserName(username);
         options.setPassword(password.toCharArray());
