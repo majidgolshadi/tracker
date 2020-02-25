@@ -15,7 +15,6 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,13 +46,13 @@ public class DriverController {
 
     /**
      * @param userLat
-     * @param userLog
+     * @param userLon
      * @param distance
      * @param category optional return all types if it's null
      * @return
      */
     @GetMapping("/v1/driver/near")
-    public List<Driver> nearDrivers(@RequestParam(value = "lat") double userLat, @RequestParam(value = "lon") double userLog,
+    public List<Driver> nearDrivers(@RequestParam(value = "lat") double userLat, @RequestParam(value = "lon") double userLon,
                                     @RequestParam(value = "distance") double distance, @RequestParam(value = "category", required = false)
                                             String category, @RequestParam(value = "rideId", required = false) String rideId) {
 
@@ -75,7 +74,7 @@ public class DriverController {
 
                     return false;
                 })
-                .filter(entry -> distance > geoHelper.distanceFromKM(entry.getValue().getDriverLocation().getLat(), entry.getValue().getDriverLocation().getLon(), userLat, userLog))
+                .filter(entry -> distance > geoHelper.distanceFromKM(entry.getValue().getDriverLocation().getLat(), entry.getValue().getDriverLocation().getLon(), userLat, userLon))
                 .map(entry -> {
                     Driver driver = Driver.builder()
                             .id(entry.getKey())
@@ -85,7 +84,7 @@ public class DriverController {
                             .build();
 
                     try {
-                        mqttClient.publish(nearbyDriversTopic, new NearbyDriverLog(rideId, driver).toMqttMessage());
+                        mqttClient.publish(nearbyDriversTopic, new NearbyDriverLog(rideId, userLat, userLon, driver).toMqttMessage());
                     } catch (JsonProcessingException e) {
                         log.error("nearby driver log to json error: {}", e.getMessage());
                     } catch (MqttPersistenceException e) {

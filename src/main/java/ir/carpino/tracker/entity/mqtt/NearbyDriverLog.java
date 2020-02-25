@@ -12,15 +12,19 @@ import java.io.Serializable;
 public class NearbyDriverLog implements Serializable {
     private String rideId;
     private String driverId;
-    private double lat;
-    private double lon;
+    private double srcLat;
+    private double srcLon;
+    private double driverLat;
+    private double driverLon;
     private long timestamp;
 
-    public NearbyDriverLog(String rideId, Driver driver) {
+    public NearbyDriverLog(String rideId, double srcLat, double srcLon, Driver driver) {
         this.rideId = rideId;
         driverId = driver.getId();
-        lat = driver.getLat();
-        lon = driver.getLon();
+        this.srcLat = srcLat;
+        this.srcLon = srcLon;
+        driverLat = driver.getLat();
+        driverLon = driver.getLon();
         timestamp = System.currentTimeMillis();
     }
 
