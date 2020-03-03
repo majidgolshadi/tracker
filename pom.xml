@@ -43,6 +43,12 @@
 			<version>${mqtt-paho-client.verison}</version>
 		</dependency>
 
+		<!-- Kafka -->
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
+
 		<!-- Hazelcast -->
 		<dependency>
 			<groupId>com.hazelcast</groupId>
