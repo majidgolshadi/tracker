@@ -20,6 +20,7 @@
 		<hazelcast.version>3.12.6</hazelcast.version>
 		<mqtt-paho-client.verison>1.2.1</mqtt-paho-client.verison>
 		<http-client.version>4.5.11</http-client.version>
+		<apache-commons-csv.version>1.8</apache-commons-csv.version>
 	</properties>
 
 	<dependencies>
@@ -104,6 +105,12 @@
 			<artifactId>hibernate-spatial</artifactId>
 		</dependency>
 		<!-- Mysql -->
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-csv</artifactId>
+			<version>${apache-commons-csv.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.projectlombok</groupId>

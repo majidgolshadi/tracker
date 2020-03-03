@@ -4,21 +4,16 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
-import org.locationtech.spatial4j.context.SpatialContext;
-import org.locationtech.spatial4j.distance.CartesianDistCalc;
-import org.locationtech.spatial4j.distance.DistanceUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 
+@Slf4j
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MqttDriverLocation implements Serializable {
-
-    private transient CartesianDistCalc geoCalculator = new CartesianDistCalc();
-    private transient SpatialContext ctx = SpatialContext.GEO;
 
     private String id;
 
@@ -45,12 +40,7 @@ public class MqttDriverLocation implements Serializable {
 
     public void setNamespaceMetaData(String namespaceMetaData) {
         String[] metadata = namespaceMetaData.split("/", 7);
-        status = metadata[3];
-//        controller = metadata[4];
-        carCategory = metadata[5];
-    }
-
-    public double distanceFromKM(double lat, double lon) {
-        return DistanceUtils.DEG_TO_KM * geoCalculator.distance(ctx.getShapeFactory().pointXY(this.lat, this.lon), lat, lon);
+        status = metadata[3].toLowerCase();
+        carCategory = metadata[5].toLowerCase();
     }
 }

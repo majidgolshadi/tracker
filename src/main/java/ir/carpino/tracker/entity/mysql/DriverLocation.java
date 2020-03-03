@@ -37,4 +37,8 @@ public class DriverLocation implements Serializable {
 
     @Column(name = "car_category", length = 16, nullable = false)
     private String carCategory;
+
+    public void setCarCategory(String carCategory) {
+        this.carCategory = carCategory.toLowerCase();
+    }
 }

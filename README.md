@@ -27,6 +27,8 @@ tracker.mqtt.password=DRIVER
 tracker.mqtt.connection-timeout=5
 
 tracker.mqtt.location-topic=loc/drv/#
+tracker.mqtt.create-ride-log-topic=log/tracker/create-ride
+tracker.mqtt.near-driver-log-topic=log/tracker/nearby-drivers
 tracker.mqtt.data-duplication-threshold=5
 tracker.mqtt.connection-validation-milliseconds-rate=3000
 
