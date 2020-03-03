@@ -2,10 +2,7 @@ package ir.carpino.tracker.configuraiton;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.eclipse.paho.client.mqttv3.IMqttClient;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +25,7 @@ public class MqttConfiguration {
 
         options.setAutomaticReconnect(true);
         options.setCleanSession(false);
+
         options.setConnectionTimeout(connectionTimeout);
         options.setMaxInflight(maxInflight);
 
@@ -38,10 +36,27 @@ public class MqttConfiguration {
     }
 
     @Bean
-    public IMqttClient getMqttClient() throws MqttException {
+    public MqttClient getMqttClient() throws MqttException {
         MqttClient publisher = new MqttClient(url, clientId, new MemoryPersistence());
         publisher.connect(getMqttOption());
 
         return publisher;
     }
+
+    @Bean
+    public MqttAsyncClient getAsyncMqttClient() throws MqttException {
+        MqttAsyncClient  publisher = new MqttAsyncClient(url, clientId, new MemoryPersistence());
+        publisher.connect(getMqttOption());
+
+        DisconnectedBufferOptions bufferOpts = new DisconnectedBufferOptions();
+        bufferOpts.setBufferEnabled(true);
+        bufferOpts.setBufferSize(1000);
+        bufferOpts.setPersistBuffer(false);
+        bufferOpts.setDeleteOldestMessages(true);
+
+        publisher.setBufferOpts(bufferOpts);
+
+        return publisher;
+    }
+
 }

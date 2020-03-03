@@ -31,6 +31,7 @@ public final class HttpEntityFactory {
         }
 
         headers.addAll(extraHeaders);
+        headers.remove(HttpHeaders.CONTENT_LENGTH);
 
         return new HttpEntity<>(body, headers);
     }

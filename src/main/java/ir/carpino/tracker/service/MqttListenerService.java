@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ir.carpino.tracker.entity.mqtt.MqttDriverLocation;
 import ir.carpino.tracker.repository.OnlineUserRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.paho.client.mqttv3.IMqttClient;
-import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -28,12 +25,12 @@ public class MqttListenerService implements IMqttMessageListener {
     private int duplicationTime;
     private int lastOnlineUsers;
 
-    private final IMqttClient client;
+    private final MqttClient client;
     private final OnlineUserRepository onlineUserRepository;
     private final ObjectMapper mapper;
 
     @Autowired
-    public MqttListenerService(IMqttClient client, OnlineUserRepository onlineUserRepository) {
+    public MqttListenerService(MqttClient client, OnlineUserRepository onlineUserRepository) {
         this.client = client;
         this.onlineUserRepository = onlineUserRepository;
 

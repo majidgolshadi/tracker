@@ -10,9 +10,7 @@ import ir.carpino.tracker.entity.rest.Driver;
 import ir.carpino.tracker.repository.OnlineUserRepository;
 import ir.carpino.tracker.utils.GeoHelper;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.paho.client.mqttv3.IMqttClient;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
+import org.eclipse.paho.client.mqttv3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +27,7 @@ public class DriverController {
 
     private GeoHelper geoHelper;
     private OnlineUserRepository repository;
-    private final IMqttClient mqttClient;
+    private final MqttClient mqttClient;
 
     @Value("#{'${tracker.driver.car-category-type}'.split(',')}")
     private List<String> categoryType;
@@ -38,7 +36,7 @@ public class DriverController {
     private String nearbyDriversTopic;
 
     @Autowired
-    public DriverController(IMqttClient mqttClient, OnlineUserRepository repository) {
+    public DriverController(MqttClient mqttClient, OnlineUserRepository repository) {
         this.mqttClient = mqttClient;
         this.repository = repository;
         geoHelper = new GeoHelper();
