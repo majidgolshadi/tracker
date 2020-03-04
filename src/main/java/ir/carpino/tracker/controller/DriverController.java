@@ -85,7 +85,7 @@ public class DriverController {
                             .build();
 
                     try {
-                        kafkaTemplate.send(nearbyDriversTopic, mapper.writeValueAsString(new NearbyDriverLog(rideId, userLat, userLon, driver)));
+                        kafkaTemplate.send(nearbyDriversTopic, rideId, mapper.writeValueAsString(new NearbyDriverLog(rideId, userLat, userLon, driver)));
                     } catch (JsonProcessingException e) {
                         log.error("nearby driver log to json error: {}", e.getMessage());
                     } catch (Exception e) {
