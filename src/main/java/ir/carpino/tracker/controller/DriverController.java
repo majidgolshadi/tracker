@@ -1,18 +1,19 @@
 package ir.carpino.tracker.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import ir.carpino.tracker.controller.exception.CarCategoryNotFoundException;
 import ir.carpino.tracker.controller.exception.DriverNotFoundException;
 import ir.carpino.tracker.entity.hazelcast.DriverData;
 import ir.carpino.tracker.entity.mqtt.MqttDriverLocation;
-import ir.carpino.tracker.entity.mqtt.NearbyDriverLog;
+import ir.carpino.tracker.entity.kafka.NearbyDriverLog;
 import ir.carpino.tracker.entity.rest.Driver;
 import ir.carpino.tracker.repository.OnlineUserRepository;
 import ir.carpino.tracker.utils.GeoHelper;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.paho.client.mqttv3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,19 +28,21 @@ public class DriverController {
 
     private GeoHelper geoHelper;
     private OnlineUserRepository repository;
-    private final MqttClient mqttClient;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectMapper mapper;
 
     @Value("#{'${tracker.driver.car-category-type}'.split(',')}")
     private List<String> categoryType;
 
-    @Value("${tracker.mqtt.near-driver-log-topic}")
+    @Value("${tracker.kafka.topic.near-driver-log}")
     private String nearbyDriversTopic;
 
     @Autowired
-    public DriverController(MqttClient mqttClient, OnlineUserRepository repository) {
-        this.mqttClient = mqttClient;
+    public DriverController(KafkaTemplate<String, String> kafkaTemplate, OnlineUserRepository repository) {
+        this.kafkaTemplate = kafkaTemplate;
         this.repository = repository;
         geoHelper = new GeoHelper();
+        mapper = new ObjectMapper();
     }
 
     /**
@@ -82,13 +85,11 @@ public class DriverController {
                             .build();
 
                     try {
-                        mqttClient.publish(nearbyDriversTopic, new NearbyDriverLog(rideId, userLat, userLon, driver).toMqttMessage());
+                        kafkaTemplate.send(nearbyDriversTopic, rideId, mapper.writeValueAsString(new NearbyDriverLog(rideId, userLat, userLon, driver)));
                     } catch (JsonProcessingException e) {
                         log.error("nearby driver log to json error: {}", e.getMessage());
-                    } catch (MqttPersistenceException e) {
-                        log.error("mqtt persistency error: {}", e.getMessage());
-                    } catch (MqttException e) {
-                        log.error("publish to mqtt error: {}", e.getMessage());
+                    } catch (Exception e) {
+                        log.error("produce nearByDrivers message error: {}", e.getMessage());
                     }
 
                     return driver;

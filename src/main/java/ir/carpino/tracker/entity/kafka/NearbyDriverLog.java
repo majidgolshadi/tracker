@@ -1,15 +1,11 @@
-package ir.carpino.tracker.entity.mqtt;
+package ir.carpino.tracker.entity.kafka;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import ir.carpino.tracker.entity.rest.Driver;
+import lombok.Data;
 import lombok.Getter;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import java.io.Serializable;
-
-@Getter
-public class NearbyDriverLog implements Serializable {
+@Data
+public class NearbyDriverLog {
     private String rideId;
     private String driverId;
     private double srcLat;
@@ -26,15 +22,5 @@ public class NearbyDriverLog implements Serializable {
         driverLat = driver.getLat();
         driverLon = driver.getLon();
         timestamp = System.currentTimeMillis();
-    }
-
-    public MqttMessage toMqttMessage() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-
-        MqttMessage mqttMessage = new MqttMessage(mapper.writeValueAsBytes(this));
-        mqttMessage.setRetained(true);
-        mqttMessage.setQos(0);
-
-        return mqttMessage;
     }
 }
