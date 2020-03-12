@@ -42,21 +42,4 @@ public class MqttConfiguration {
 
         return publisher;
     }
-
-    @Bean
-    public MqttAsyncClient getAsyncMqttClient() throws MqttException {
-        MqttAsyncClient  publisher = new MqttAsyncClient(url, clientId, new MemoryPersistence());
-        publisher.connect(getMqttOption());
-
-        DisconnectedBufferOptions bufferOpts = new DisconnectedBufferOptions();
-        bufferOpts.setBufferEnabled(true);
-        bufferOpts.setBufferSize(1000);
-        bufferOpts.setPersistBuffer(false);
-        bufferOpts.setDeleteOldestMessages(true);
-
-        publisher.setBufferOpts(bufferOpts);
-
-        return publisher;
-    }
-
 }
