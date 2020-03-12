@@ -23,7 +23,7 @@ public class MqttListenerService implements IMqttMessageListener {
     private int threshold;
 
     private int duplicationTime;
-    private int lastOnlineUsers;
+    private transient int lastOnlineUsers;
 
     private final MqttClient client;
     private final OnlineUserRepository onlineUserRepository;
@@ -84,6 +84,7 @@ public class MqttListenerService implements IMqttMessageListener {
         }
 
         if (duplicationTime > threshold) {
+            log.warn("cross long time same number online users threshold limit");
             resubscribe();
             duplicationTime = 0;
         }
