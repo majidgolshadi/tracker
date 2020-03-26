@@ -60,7 +60,7 @@ public final class HttpEntityFactory {
         try {
             responseEntity = restTemplate.exchange(uri, method, httpEntity, String.class);
         } catch (HttpStatusCodeException e) {
-            log.error("reverse proxy exception ", e.getCause());
+            log.error("reverse proxy exception uri: {}, statusCode: {}, message: {}", uri, e.getStatusCode(), e.getMessage());
             responseEntity = ResponseEntity.status(e.getRawStatusCode())
                     .headers(e.getResponseHeaders())
                     .body(e.getResponseBodyAsString());
