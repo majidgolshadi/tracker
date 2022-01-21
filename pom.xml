@@ -17,7 +17,7 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<jackson.version>2.10.2</jackson.version>
-		<hazelcast.version>3.12.6</hazelcast.version>
+		<hazelcast.version>4.0.5</hazelcast.version>
 		<mqtt-paho-client.verison>1.2.1</mqtt-paho-client.verison>
 		<http-client.version>4.5.11</http-client.version>
 		<apache-commons-csv.version>1.8</apache-commons-csv.version>
